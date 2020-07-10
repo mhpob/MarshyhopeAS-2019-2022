@@ -65,4 +65,4 @@ flowlines <- flowlines[grepl('Marshy', flowlines$gnis_name),]
 
 
 # Export ----
-st_write(flowlines, 'data/raw/marshyhope_flowline.csv')
+st_write(flowlines, 'data/raw/marshyhope_flowline.gpkg')
