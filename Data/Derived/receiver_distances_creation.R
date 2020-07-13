@@ -1,4 +1,4 @@
-library(sf); library(data.table)
+library(sf); library(dplyr)
 
 
 # Read and manipulate flowline data ---
@@ -12,10 +12,13 @@ flowline <- st_line_merge(flowline)
 
 
 # Read in and manipulate receiver locations ----
-dets <- fread('data/derived/sturgeon_detections.gz')
-# dets <- dets[date.local >= '2017-01-01'& date.local <= '2017-12-31']
-recs <- unique(dets, by = c('long', 'lat'))
-recs <- st_as_sf(recs, coords = c('long', 'lat'), crs = st_crs(flowline))
+dets <- data.table::fread('data/derived/sturgeon_detections.gz')
+
+recs <- dets %>%
+  distinct(lat, long, .keep_all = T) %>%
+  arrange(-lat) %>%
+  st_as_sf(coords = c('long', 'lat'),
+           crs = 4326)
 
 
 # Reproject spatial objects ----
@@ -25,8 +28,9 @@ recs <- st_transform(recs, 32618)
 
 
 # Break the line that makes up the flowline into points 1 m apart from each other ----
-flowline <- st_segmentize(flowline, 1)
-flowline <- st_cast(flowline, 'MULTIPOINT')
+flowline <- flowline %>%
+  st_segmentize(1) %>%
+  st_cast('MULTIPOINT')
 
 
 
@@ -37,12 +41,12 @@ pts <- st_nearest_points(flowline, recs)
 
 # Cast flowline from MULTIPOINT into simplified LINESTRING ---
 flowline <- st_cast(flowline, 'LINESTRING')
-flowline <- st_simplify(flowline)
 
 
 
 # Split linestring into sections by the nearest points ----
-flowline_split <- st_collection_extract(lwgeom::st_split(flowline, pts), 'LINESTRING')
+flowline_split <- lwgeom::st_split(flowline, pts) %>%
+  st_collection_extract('LINESTRING')
 
 
 
@@ -55,6 +59,15 @@ parts_all <- st_as_sf(
 )
 
 library(ggplot2)
-ggplot() +geom_sf(aes(color = as.factor(id)), parts_all, size =5) + geom_sf(data = recs) +
+ggplot() +
+  geom_sf(aes(color = as.factor(id)), parts_all, size =5) +
+  geom_sf(data = recs) +
   theme_bw()
+
+
+
+# Make distance matrix ----
+k <- dplyr::arrange(flowline_split, st_coordinates(flowline_split)[,2])
+
+
 
