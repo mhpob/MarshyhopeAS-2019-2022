@@ -1,4 +1,4 @@
-library(sf); library(dplyr)
+library(tidyr); library(dplyr); library(sf)
 
 
 # Read and manipulate flowline data ---
@@ -43,51 +43,28 @@ pts <- st_nearest_points(flowline, recs)
 flowline <- st_cast(flowline, 'LINESTRING')
 
 
-
-# # Split linestring into sections by the nearest points ----
-# flowline_split <- lwgeom::st_split(flowline, pts) %>%
-#   st_collection_extract('LINESTRING')
-#
-#
-#
-# # Visualize ----
-# parts_all <- st_as_sf(
-#   data.frame(
-#     id = 1:length(flowline_split),
-#     geometry = flowline_split
-#   )
-# )
-#
-# library(ggplot2)
-# ggplot() +
-#   geom_sf(aes(color = as.factor(id)), parts_all, size =5) +
-#   geom_sf(data = recs) +
-#   theme_bw()
-
-
-
 # Make distance matrix ----
-k <- recs
-st_geometry(k) <- pts
-m <- matrix(nrow = nrow(k), ncol = nrow(k))
+st_geometry(recs) <- pts
+dist_mat <- matrix(nrow = nrow(recs), ncol = nrow(recs))
 
-key <- t(combn(seq(1, nrow(k), 1), 2))
+key <- t(combn(seq(1, nrow(recs), 1), 2))
 
 for(i in 1:nrow(key)){
-  l <- lwgeom::st_split(flowline, k[c(key[i, 1], key[i, 2]),])
-  j <- st_collection_extract(l, 'LINESTRING')
-  m[key[i, 1], key[i, 2]] <- st_length(j)[2]
+  flowline_split <- lwgeom::st_split(flowline, k[c(key[i, 1], key[i, 2]),])
+  flowline_split <- st_collection_extract(flowline_split, 'LINESTRING')
+  dist_mat[key[i, 1], key[i, 2]] <- st_length(flowline_split)[2]
 }
 
-diag(m) <- 0
+diag(dist_mat) <- 0
 
 
 
-n <- rbind(recs$station, m)
-n <- cbind(c('from', recs$station), n)
-n <- as.data.frame(n)
-names(n) <- n[1,]
-n <- n[-1,]
+dist_mat <- rbind(recs$station, dist_mat)
+dist_mat <- cbind(c('from', recs$station), dist_mat)
+dist_df <- as.data.frame(dist_mat)
+names(dist_df) <- dist_df[1,]
+dist_df <- dist_df[-1,] %>%
 
-n <- tidyr::pivot_longer(n, -from, names_to = 'to', values_to = 'distance_m')
-n$distance_m <- round(as.numeric(n$distance_m))
+dist_df <- tidyr::pivot_longer(dist_df, -from,
+                               names_to = 'to', values_to = 'distance_m')
+dist_df$distance_m <- round(as.numeric(dist_df$distance_m))
