@@ -49,9 +49,14 @@ dist_mat <- matrix(nrow = nrow(recs), ncol = nrow(recs))
 
 key <- t(combn(seq(1, nrow(recs), 1), 2))
 
+
+##  Brute force ditance calculation
 for(i in 1:nrow(key)){
-  flowline_split <- lwgeom::st_split(flowline, k[c(key[i, 1], key[i, 2]),])
+  # Split flowline into thirds according to each combination of receivers
+  flowline_split <- lwgeom::st_split(flowline, recs[c(key[i, 1], key[i, 2]),])
   flowline_split <- st_collection_extract(flowline_split, 'LINESTRING')
+
+  # Find the length of the middle third
   dist_mat[key[i, 1], key[i, 2]] <- st_length(flowline_split)[2]
 }
 
@@ -59,12 +64,18 @@ diag(dist_mat) <- 0
 
 
 
+# Convert distance matrix to data frame ----
 dist_mat <- rbind(recs$station, dist_mat)
 dist_mat <- cbind(c('from', recs$station), dist_mat)
+
+
 dist_df <- as.data.frame(dist_mat)
 names(dist_df) <- dist_df[1,]
-dist_df <- dist_df[-1,] %>%
+dist_df <- dist_df[-1,]
+
 
 dist_df <- tidyr::pivot_longer(dist_df, -from,
-                               names_to = 'to', values_to = 'distance_m')
-dist_df$distance_m <- round(as.numeric(dist_df$distance_m))
+                               names_to = 'to', values_to = 'distance_m') %>%
+  mutate(distance_m = as.numeric(distance_m),
+         distance_m = round(distance_m)) %>%
+  filter(!is.na(distance_m))
