@@ -21,6 +21,7 @@ recs <- dets %>%
            crs = 4326)
 
 
+
 # Reproject spatial objects ----
 flowline <- st_transform(flowline, 32618)
 recs <- st_transform(recs, 32618)
@@ -43,6 +44,7 @@ pts <- st_nearest_points(flowline, recs)
 flowline <- st_cast(flowline, 'LINESTRING')
 
 
+
 # Make distance matrix ----
 st_geometry(recs) <- pts
 dist_mat <- matrix(nrow = nrow(recs), ncol = nrow(recs))
@@ -56,9 +58,18 @@ for(i in 1:nrow(key)){
   flowline_split <- lwgeom::st_split(flowline, recs[c(key[i, 1], key[i, 2]),])
   flowline_split <- st_collection_extract(flowline_split, 'LINESTRING')
 
-  # Find the length of the middle third
-  dist_mat[key[i, 1], key[i, 2]] <- st_length(flowline_split)[2]
+  # Find the length of the flowline between locations
+  lengths <- st_length(flowline_split)
+
+  dist_mat[key[i, 1], key[i, 2]] <- ifelse(
+    # If locations are identical, then there will be two sections returned...
+    length(lengths) == 2,
+    # Assign a distance of 0 to this.
+    0,
+    # Otherwise, choose the distance of the middle (second) section
+    lengths[2])
 }
+
 
 diag(dist_mat) <- 0
 
@@ -79,3 +90,6 @@ dist_df <- tidyr::pivot_longer(dist_df, -from,
   mutate(distance_m = as.numeric(distance_m),
          distance_m = round(distance_m)) %>%
   filter(!is.na(distance_m))
+
+
+write.csv(dist_df, 'data/derived/receiver_distances.csv', row.names = F)

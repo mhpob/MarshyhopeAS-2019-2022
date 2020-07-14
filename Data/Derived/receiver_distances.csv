@@ -1,0 +1,667 @@
+"from","to","distance_m"
+"Federalsburg","Federalsburg",0
+"Federalsburg","0.5 Federalsburg",0
+"Federalsburg","1 Marshyhope/VFW speed limit buoy",1845
+"Federalsburg","1 VFW speed limit buoy",1845
+"Federalsburg","2 Marshyhope /Fooks pier",3792
+"Federalsburg","2 Fook's pier",3792
+"Federalsburg","Marshyhope/Fooks pier",3792
+"Federalsburg","2.6 Marshyhope/Below Yellow House",5517
+"Federalsburg","2.6 Below Yellow House",5517
+"Federalsburg","2.3 Marshyhope/Yellow House",5003
+"Federalsburg","2.3 Yellow House",5003
+"Federalsburg","2.8 Marshyhope/Wright",6784
+"Federalsburg","2.8 Wright",6784
+"Federalsburg","3.9 Pump House",7949
+"Federalsburg","Marshyhope/Grey Cabin",8848
+"Federalsburg","3 Marshyhope/Grey Cabin",8848
+"Federalsburg","3 Palmer's Mill",8848
+"Federalsburg","3.2 Marshyhope/Below 392 Bridge",11149
+"Federalsburg","3.2 Below 392 Bridge",11149
+"Federalsburg","3.4 Marshyhope/Puckums Branch",13637
+"Federalsburg","3.4 Puckum's Branch",13637
+"Federalsburg","3.6 Marshyhope/Below Puckum's Branch",15970
+"Federalsburg","3.6 Below Puckum's Branch",15970
+"Federalsburg","3.8 Marshyhope/Above Brookview Bridge",17781
+"Federalsburg","3.8 Above Brookview Bridge",17781
+"Federalsburg","Marshyhope/Brookview buoy",18272
+"Federalsburg","4 Marshyhope/Brookview buoy",19081
+"Federalsburg","4 Brookview buoy",19081
+"Federalsburg","4.2 Below Brookview",20472
+"Federalsburg","4.2 Marshyhope/Below Brookview",20472
+"Federalsburg","4.4 Above Walnut Landing Rd.",21769
+"Federalsburg","4.4 Marshyhope/Above Walnut Landing Rd.",21769
+"Federalsburg","4.4 Above Walnut Landing",21769
+"Federalsburg","4.6 Walnut Landing Rd.",23083
+"Federalsburg","4.8 Red Bank",25120
+"Federalsburg","4.9 Marshyhope confluence",26978
+"0.5 Federalsburg","0.5 Federalsburg",0
+"0.5 Federalsburg","1 Marshyhope/VFW speed limit buoy",1845
+"0.5 Federalsburg","1 VFW speed limit buoy",1845
+"0.5 Federalsburg","2 Marshyhope /Fooks pier",3792
+"0.5 Federalsburg","2 Fook's pier",3792
+"0.5 Federalsburg","Marshyhope/Fooks pier",3792
+"0.5 Federalsburg","2.6 Marshyhope/Below Yellow House",5517
+"0.5 Federalsburg","2.6 Below Yellow House",5517
+"0.5 Federalsburg","2.3 Marshyhope/Yellow House",5003
+"0.5 Federalsburg","2.3 Yellow House",5003
+"0.5 Federalsburg","2.8 Marshyhope/Wright",6784
+"0.5 Federalsburg","2.8 Wright",6784
+"0.5 Federalsburg","3.9 Pump House",7949
+"0.5 Federalsburg","Marshyhope/Grey Cabin",8848
+"0.5 Federalsburg","3 Marshyhope/Grey Cabin",8848
+"0.5 Federalsburg","3 Palmer's Mill",8848
+"0.5 Federalsburg","3.2 Marshyhope/Below 392 Bridge",11149
+"0.5 Federalsburg","3.2 Below 392 Bridge",11149
+"0.5 Federalsburg","3.4 Marshyhope/Puckums Branch",13637
+"0.5 Federalsburg","3.4 Puckum's Branch",13637
+"0.5 Federalsburg","3.6 Marshyhope/Below Puckum's Branch",15970
+"0.5 Federalsburg","3.6 Below Puckum's Branch",15970
+"0.5 Federalsburg","3.8 Marshyhope/Above Brookview Bridge",17781
+"0.5 Federalsburg","3.8 Above Brookview Bridge",17781
+"0.5 Federalsburg","Marshyhope/Brookview buoy",18272
+"0.5 Federalsburg","4 Marshyhope/Brookview buoy",19081
+"0.5 Federalsburg","4 Brookview buoy",19081
+"0.5 Federalsburg","4.2 Below Brookview",20472
+"0.5 Federalsburg","4.2 Marshyhope/Below Brookview",20472
+"0.5 Federalsburg","4.4 Above Walnut Landing Rd.",21769
+"0.5 Federalsburg","4.4 Marshyhope/Above Walnut Landing Rd.",21769
+"0.5 Federalsburg","4.4 Above Walnut Landing",21769
+"0.5 Federalsburg","4.6 Walnut Landing Rd.",23083
+"0.5 Federalsburg","4.8 Red Bank",25120
+"0.5 Federalsburg","4.9 Marshyhope confluence",26978
+"1 Marshyhope/VFW speed limit buoy","1 Marshyhope/VFW speed limit buoy",0
+"1 Marshyhope/VFW speed limit buoy","1 VFW speed limit buoy",0
+"1 Marshyhope/VFW speed limit buoy","2 Marshyhope /Fooks pier",1947
+"1 Marshyhope/VFW speed limit buoy","2 Fook's pier",1947
+"1 Marshyhope/VFW speed limit buoy","Marshyhope/Fooks pier",1947
+"1 Marshyhope/VFW speed limit buoy","2.6 Marshyhope/Below Yellow House",3672
+"1 Marshyhope/VFW speed limit buoy","2.6 Below Yellow House",3672
+"1 Marshyhope/VFW speed limit buoy","2.3 Marshyhope/Yellow House",3158
+"1 Marshyhope/VFW speed limit buoy","2.3 Yellow House",3158
+"1 Marshyhope/VFW speed limit buoy","2.8 Marshyhope/Wright",4939
+"1 Marshyhope/VFW speed limit buoy","2.8 Wright",4939
+"1 Marshyhope/VFW speed limit buoy","3.9 Pump House",6104
+"1 Marshyhope/VFW speed limit buoy","Marshyhope/Grey Cabin",7002
+"1 Marshyhope/VFW speed limit buoy","3 Marshyhope/Grey Cabin",7002
+"1 Marshyhope/VFW speed limit buoy","3 Palmer's Mill",7002
+"1 Marshyhope/VFW speed limit buoy","3.2 Marshyhope/Below 392 Bridge",9303
+"1 Marshyhope/VFW speed limit buoy","3.2 Below 392 Bridge",9303
+"1 Marshyhope/VFW speed limit buoy","3.4 Marshyhope/Puckums Branch",11792
+"1 Marshyhope/VFW speed limit buoy","3.4 Puckum's Branch",11792
+"1 Marshyhope/VFW speed limit buoy","3.6 Marshyhope/Below Puckum's Branch",14125
+"1 Marshyhope/VFW speed limit buoy","3.6 Below Puckum's Branch",14125
+"1 Marshyhope/VFW speed limit buoy","3.8 Marshyhope/Above Brookview Bridge",15936
+"1 Marshyhope/VFW speed limit buoy","3.8 Above Brookview Bridge",15936
+"1 Marshyhope/VFW speed limit buoy","Marshyhope/Brookview buoy",16427
+"1 Marshyhope/VFW speed limit buoy","4 Marshyhope/Brookview buoy",17236
+"1 Marshyhope/VFW speed limit buoy","4 Brookview buoy",17236
+"1 Marshyhope/VFW speed limit buoy","4.2 Below Brookview",18626
+"1 Marshyhope/VFW speed limit buoy","4.2 Marshyhope/Below Brookview",18626
+"1 Marshyhope/VFW speed limit buoy","4.4 Above Walnut Landing Rd.",19924
+"1 Marshyhope/VFW speed limit buoy","4.4 Marshyhope/Above Walnut Landing Rd.",19924
+"1 Marshyhope/VFW speed limit buoy","4.4 Above Walnut Landing",19924
+"1 Marshyhope/VFW speed limit buoy","4.6 Walnut Landing Rd.",21238
+"1 Marshyhope/VFW speed limit buoy","4.8 Red Bank",23275
+"1 Marshyhope/VFW speed limit buoy","4.9 Marshyhope confluence",25132
+"1 VFW speed limit buoy","1 VFW speed limit buoy",0
+"1 VFW speed limit buoy","2 Marshyhope /Fooks pier",1947
+"1 VFW speed limit buoy","2 Fook's pier",1947
+"1 VFW speed limit buoy","Marshyhope/Fooks pier",1947
+"1 VFW speed limit buoy","2.6 Marshyhope/Below Yellow House",3672
+"1 VFW speed limit buoy","2.6 Below Yellow House",3672
+"1 VFW speed limit buoy","2.3 Marshyhope/Yellow House",3158
+"1 VFW speed limit buoy","2.3 Yellow House",3158
+"1 VFW speed limit buoy","2.8 Marshyhope/Wright",4939
+"1 VFW speed limit buoy","2.8 Wright",4939
+"1 VFW speed limit buoy","3.9 Pump House",6104
+"1 VFW speed limit buoy","Marshyhope/Grey Cabin",7002
+"1 VFW speed limit buoy","3 Marshyhope/Grey Cabin",7002
+"1 VFW speed limit buoy","3 Palmer's Mill",7002
+"1 VFW speed limit buoy","3.2 Marshyhope/Below 392 Bridge",9303
+"1 VFW speed limit buoy","3.2 Below 392 Bridge",9303
+"1 VFW speed limit buoy","3.4 Marshyhope/Puckums Branch",11792
+"1 VFW speed limit buoy","3.4 Puckum's Branch",11792
+"1 VFW speed limit buoy","3.6 Marshyhope/Below Puckum's Branch",14125
+"1 VFW speed limit buoy","3.6 Below Puckum's Branch",14125
+"1 VFW speed limit buoy","3.8 Marshyhope/Above Brookview Bridge",15936
+"1 VFW speed limit buoy","3.8 Above Brookview Bridge",15936
+"1 VFW speed limit buoy","Marshyhope/Brookview buoy",16427
+"1 VFW speed limit buoy","4 Marshyhope/Brookview buoy",17236
+"1 VFW speed limit buoy","4 Brookview buoy",17236
+"1 VFW speed limit buoy","4.2 Below Brookview",18626
+"1 VFW speed limit buoy","4.2 Marshyhope/Below Brookview",18626
+"1 VFW speed limit buoy","4.4 Above Walnut Landing Rd.",19924
+"1 VFW speed limit buoy","4.4 Marshyhope/Above Walnut Landing Rd.",19924
+"1 VFW speed limit buoy","4.4 Above Walnut Landing",19924
+"1 VFW speed limit buoy","4.6 Walnut Landing Rd.",21238
+"1 VFW speed limit buoy","4.8 Red Bank",23275
+"1 VFW speed limit buoy","4.9 Marshyhope confluence",25132
+"2 Marshyhope /Fooks pier","2 Marshyhope /Fooks pier",0
+"2 Marshyhope /Fooks pier","2 Fook's pier",0
+"2 Marshyhope /Fooks pier","Marshyhope/Fooks pier",0
+"2 Marshyhope /Fooks pier","2.6 Marshyhope/Below Yellow House",1725
+"2 Marshyhope /Fooks pier","2.6 Below Yellow House",1725
+"2 Marshyhope /Fooks pier","2.3 Marshyhope/Yellow House",1211
+"2 Marshyhope /Fooks pier","2.3 Yellow House",1211
+"2 Marshyhope /Fooks pier","2.8 Marshyhope/Wright",2991
+"2 Marshyhope /Fooks pier","2.8 Wright",2991
+"2 Marshyhope /Fooks pier","3.9 Pump House",4156
+"2 Marshyhope /Fooks pier","Marshyhope/Grey Cabin",5055
+"2 Marshyhope /Fooks pier","3 Marshyhope/Grey Cabin",5055
+"2 Marshyhope /Fooks pier","3 Palmer's Mill",5055
+"2 Marshyhope /Fooks pier","3.2 Marshyhope/Below 392 Bridge",7356
+"2 Marshyhope /Fooks pier","3.2 Below 392 Bridge",7356
+"2 Marshyhope /Fooks pier","3.4 Marshyhope/Puckums Branch",9844
+"2 Marshyhope /Fooks pier","3.4 Puckum's Branch",9844
+"2 Marshyhope /Fooks pier","3.6 Marshyhope/Below Puckum's Branch",12178
+"2 Marshyhope /Fooks pier","3.6 Below Puckum's Branch",12178
+"2 Marshyhope /Fooks pier","3.8 Marshyhope/Above Brookview Bridge",13989
+"2 Marshyhope /Fooks pier","3.8 Above Brookview Bridge",13989
+"2 Marshyhope /Fooks pier","Marshyhope/Brookview buoy",14480
+"2 Marshyhope /Fooks pier","4 Marshyhope/Brookview buoy",15289
+"2 Marshyhope /Fooks pier","4 Brookview buoy",15289
+"2 Marshyhope /Fooks pier","4.2 Below Brookview",16679
+"2 Marshyhope /Fooks pier","4.2 Marshyhope/Below Brookview",16679
+"2 Marshyhope /Fooks pier","4.4 Above Walnut Landing Rd.",17976
+"2 Marshyhope /Fooks pier","4.4 Marshyhope/Above Walnut Landing Rd.",17976
+"2 Marshyhope /Fooks pier","4.4 Above Walnut Landing",17976
+"2 Marshyhope /Fooks pier","4.6 Walnut Landing Rd.",19291
+"2 Marshyhope /Fooks pier","4.8 Red Bank",21328
+"2 Marshyhope /Fooks pier","4.9 Marshyhope confluence",23185
+"2 Fook's pier","2 Fook's pier",0
+"2 Fook's pier","Marshyhope/Fooks pier",0
+"2 Fook's pier","2.6 Marshyhope/Below Yellow House",1725
+"2 Fook's pier","2.6 Below Yellow House",1725
+"2 Fook's pier","2.3 Marshyhope/Yellow House",1211
+"2 Fook's pier","2.3 Yellow House",1211
+"2 Fook's pier","2.8 Marshyhope/Wright",2991
+"2 Fook's pier","2.8 Wright",2991
+"2 Fook's pier","3.9 Pump House",4156
+"2 Fook's pier","Marshyhope/Grey Cabin",5055
+"2 Fook's pier","3 Marshyhope/Grey Cabin",5055
+"2 Fook's pier","3 Palmer's Mill",5055
+"2 Fook's pier","3.2 Marshyhope/Below 392 Bridge",7356
+"2 Fook's pier","3.2 Below 392 Bridge",7356
+"2 Fook's pier","3.4 Marshyhope/Puckums Branch",9844
+"2 Fook's pier","3.4 Puckum's Branch",9844
+"2 Fook's pier","3.6 Marshyhope/Below Puckum's Branch",12178
+"2 Fook's pier","3.6 Below Puckum's Branch",12178
+"2 Fook's pier","3.8 Marshyhope/Above Brookview Bridge",13989
+"2 Fook's pier","3.8 Above Brookview Bridge",13989
+"2 Fook's pier","Marshyhope/Brookview buoy",14480
+"2 Fook's pier","4 Marshyhope/Brookview buoy",15289
+"2 Fook's pier","4 Brookview buoy",15289
+"2 Fook's pier","4.2 Below Brookview",16679
+"2 Fook's pier","4.2 Marshyhope/Below Brookview",16679
+"2 Fook's pier","4.4 Above Walnut Landing Rd.",17976
+"2 Fook's pier","4.4 Marshyhope/Above Walnut Landing Rd.",17976
+"2 Fook's pier","4.4 Above Walnut Landing",17976
+"2 Fook's pier","4.6 Walnut Landing Rd.",19291
+"2 Fook's pier","4.8 Red Bank",21328
+"2 Fook's pier","4.9 Marshyhope confluence",23185
+"Marshyhope/Fooks pier","Marshyhope/Fooks pier",0
+"Marshyhope/Fooks pier","2.6 Marshyhope/Below Yellow House",1725
+"Marshyhope/Fooks pier","2.6 Below Yellow House",1725
+"Marshyhope/Fooks pier","2.3 Marshyhope/Yellow House",1211
+"Marshyhope/Fooks pier","2.3 Yellow House",1211
+"Marshyhope/Fooks pier","2.8 Marshyhope/Wright",2991
+"Marshyhope/Fooks pier","2.8 Wright",2991
+"Marshyhope/Fooks pier","3.9 Pump House",4156
+"Marshyhope/Fooks pier","Marshyhope/Grey Cabin",5055
+"Marshyhope/Fooks pier","3 Marshyhope/Grey Cabin",5055
+"Marshyhope/Fooks pier","3 Palmer's Mill",5055
+"Marshyhope/Fooks pier","3.2 Marshyhope/Below 392 Bridge",7356
+"Marshyhope/Fooks pier","3.2 Below 392 Bridge",7356
+"Marshyhope/Fooks pier","3.4 Marshyhope/Puckums Branch",9844
+"Marshyhope/Fooks pier","3.4 Puckum's Branch",9844
+"Marshyhope/Fooks pier","3.6 Marshyhope/Below Puckum's Branch",12178
+"Marshyhope/Fooks pier","3.6 Below Puckum's Branch",12178
+"Marshyhope/Fooks pier","3.8 Marshyhope/Above Brookview Bridge",13989
+"Marshyhope/Fooks pier","3.8 Above Brookview Bridge",13989
+"Marshyhope/Fooks pier","Marshyhope/Brookview buoy",14480
+"Marshyhope/Fooks pier","4 Marshyhope/Brookview buoy",15289
+"Marshyhope/Fooks pier","4 Brookview buoy",15289
+"Marshyhope/Fooks pier","4.2 Below Brookview",16679
+"Marshyhope/Fooks pier","4.2 Marshyhope/Below Brookview",16679
+"Marshyhope/Fooks pier","4.4 Above Walnut Landing Rd.",17976
+"Marshyhope/Fooks pier","4.4 Marshyhope/Above Walnut Landing Rd.",17976
+"Marshyhope/Fooks pier","4.4 Above Walnut Landing",17976
+"Marshyhope/Fooks pier","4.6 Walnut Landing Rd.",19291
+"Marshyhope/Fooks pier","4.8 Red Bank",21328
+"Marshyhope/Fooks pier","4.9 Marshyhope confluence",23185
+"2.6 Marshyhope/Below Yellow House","2.6 Marshyhope/Below Yellow House",0
+"2.6 Marshyhope/Below Yellow House","2.6 Below Yellow House",0
+"2.6 Marshyhope/Below Yellow House","2.3 Marshyhope/Yellow House",514
+"2.6 Marshyhope/Below Yellow House","2.3 Yellow House",514
+"2.6 Marshyhope/Below Yellow House","2.8 Marshyhope/Wright",1267
+"2.6 Marshyhope/Below Yellow House","2.8 Wright",1267
+"2.6 Marshyhope/Below Yellow House","3.9 Pump House",2432
+"2.6 Marshyhope/Below Yellow House","Marshyhope/Grey Cabin",3330
+"2.6 Marshyhope/Below Yellow House","3 Marshyhope/Grey Cabin",3330
+"2.6 Marshyhope/Below Yellow House","3 Palmer's Mill",3330
+"2.6 Marshyhope/Below Yellow House","3.2 Marshyhope/Below 392 Bridge",5632
+"2.6 Marshyhope/Below Yellow House","3.2 Below 392 Bridge",5632
+"2.6 Marshyhope/Below Yellow House","3.4 Marshyhope/Puckums Branch",8120
+"2.6 Marshyhope/Below Yellow House","3.4 Puckum's Branch",8120
+"2.6 Marshyhope/Below Yellow House","3.6 Marshyhope/Below Puckum's Branch",10453
+"2.6 Marshyhope/Below Yellow House","3.6 Below Puckum's Branch",10453
+"2.6 Marshyhope/Below Yellow House","3.8 Marshyhope/Above Brookview Bridge",12264
+"2.6 Marshyhope/Below Yellow House","3.8 Above Brookview Bridge",12264
+"2.6 Marshyhope/Below Yellow House","Marshyhope/Brookview buoy",12755
+"2.6 Marshyhope/Below Yellow House","4 Marshyhope/Brookview buoy",13564
+"2.6 Marshyhope/Below Yellow House","4 Brookview buoy",13564
+"2.6 Marshyhope/Below Yellow House","4.2 Below Brookview",14955
+"2.6 Marshyhope/Below Yellow House","4.2 Marshyhope/Below Brookview",14955
+"2.6 Marshyhope/Below Yellow House","4.4 Above Walnut Landing Rd.",16252
+"2.6 Marshyhope/Below Yellow House","4.4 Marshyhope/Above Walnut Landing Rd.",16252
+"2.6 Marshyhope/Below Yellow House","4.4 Above Walnut Landing",16252
+"2.6 Marshyhope/Below Yellow House","4.6 Walnut Landing Rd.",17566
+"2.6 Marshyhope/Below Yellow House","4.8 Red Bank",19603
+"2.6 Marshyhope/Below Yellow House","4.9 Marshyhope confluence",21460
+"2.6 Below Yellow House","2.6 Below Yellow House",0
+"2.6 Below Yellow House","2.3 Marshyhope/Yellow House",514
+"2.6 Below Yellow House","2.3 Yellow House",514
+"2.6 Below Yellow House","2.8 Marshyhope/Wright",1267
+"2.6 Below Yellow House","2.8 Wright",1267
+"2.6 Below Yellow House","3.9 Pump House",2432
+"2.6 Below Yellow House","Marshyhope/Grey Cabin",3330
+"2.6 Below Yellow House","3 Marshyhope/Grey Cabin",3330
+"2.6 Below Yellow House","3 Palmer's Mill",3330
+"2.6 Below Yellow House","3.2 Marshyhope/Below 392 Bridge",5632
+"2.6 Below Yellow House","3.2 Below 392 Bridge",5632
+"2.6 Below Yellow House","3.4 Marshyhope/Puckums Branch",8120
+"2.6 Below Yellow House","3.4 Puckum's Branch",8120
+"2.6 Below Yellow House","3.6 Marshyhope/Below Puckum's Branch",10453
+"2.6 Below Yellow House","3.6 Below Puckum's Branch",10453
+"2.6 Below Yellow House","3.8 Marshyhope/Above Brookview Bridge",12264
+"2.6 Below Yellow House","3.8 Above Brookview Bridge",12264
+"2.6 Below Yellow House","Marshyhope/Brookview buoy",12755
+"2.6 Below Yellow House","4 Marshyhope/Brookview buoy",13564
+"2.6 Below Yellow House","4 Brookview buoy",13564
+"2.6 Below Yellow House","4.2 Below Brookview",14955
+"2.6 Below Yellow House","4.2 Marshyhope/Below Brookview",14955
+"2.6 Below Yellow House","4.4 Above Walnut Landing Rd.",16252
+"2.6 Below Yellow House","4.4 Marshyhope/Above Walnut Landing Rd.",16252
+"2.6 Below Yellow House","4.4 Above Walnut Landing",16252
+"2.6 Below Yellow House","4.6 Walnut Landing Rd.",17566
+"2.6 Below Yellow House","4.8 Red Bank",19603
+"2.6 Below Yellow House","4.9 Marshyhope confluence",21460
+"2.3 Marshyhope/Yellow House","2.3 Marshyhope/Yellow House",0
+"2.3 Marshyhope/Yellow House","2.3 Yellow House",0
+"2.3 Marshyhope/Yellow House","2.8 Marshyhope/Wright",1781
+"2.3 Marshyhope/Yellow House","2.8 Wright",1781
+"2.3 Marshyhope/Yellow House","3.9 Pump House",2945
+"2.3 Marshyhope/Yellow House","Marshyhope/Grey Cabin",3844
+"2.3 Marshyhope/Yellow House","3 Marshyhope/Grey Cabin",3844
+"2.3 Marshyhope/Yellow House","3 Palmer's Mill",3844
+"2.3 Marshyhope/Yellow House","3.2 Marshyhope/Below 392 Bridge",6145
+"2.3 Marshyhope/Yellow House","3.2 Below 392 Bridge",6145
+"2.3 Marshyhope/Yellow House","3.4 Marshyhope/Puckums Branch",8634
+"2.3 Marshyhope/Yellow House","3.4 Puckum's Branch",8634
+"2.3 Marshyhope/Yellow House","3.6 Marshyhope/Below Puckum's Branch",10967
+"2.3 Marshyhope/Yellow House","3.6 Below Puckum's Branch",10967
+"2.3 Marshyhope/Yellow House","3.8 Marshyhope/Above Brookview Bridge",12778
+"2.3 Marshyhope/Yellow House","3.8 Above Brookview Bridge",12778
+"2.3 Marshyhope/Yellow House","Marshyhope/Brookview buoy",13269
+"2.3 Marshyhope/Yellow House","4 Marshyhope/Brookview buoy",14078
+"2.3 Marshyhope/Yellow House","4 Brookview buoy",14078
+"2.3 Marshyhope/Yellow House","4.2 Below Brookview",15468
+"2.3 Marshyhope/Yellow House","4.2 Marshyhope/Below Brookview",15468
+"2.3 Marshyhope/Yellow House","4.4 Above Walnut Landing Rd.",16766
+"2.3 Marshyhope/Yellow House","4.4 Marshyhope/Above Walnut Landing Rd.",16766
+"2.3 Marshyhope/Yellow House","4.4 Above Walnut Landing",16766
+"2.3 Marshyhope/Yellow House","4.6 Walnut Landing Rd.",18080
+"2.3 Marshyhope/Yellow House","4.8 Red Bank",20117
+"2.3 Marshyhope/Yellow House","4.9 Marshyhope confluence",21974
+"2.3 Yellow House","2.3 Yellow House",0
+"2.3 Yellow House","2.8 Marshyhope/Wright",1781
+"2.3 Yellow House","2.8 Wright",1781
+"2.3 Yellow House","3.9 Pump House",2945
+"2.3 Yellow House","Marshyhope/Grey Cabin",3844
+"2.3 Yellow House","3 Marshyhope/Grey Cabin",3844
+"2.3 Yellow House","3 Palmer's Mill",3844
+"2.3 Yellow House","3.2 Marshyhope/Below 392 Bridge",6145
+"2.3 Yellow House","3.2 Below 392 Bridge",6145
+"2.3 Yellow House","3.4 Marshyhope/Puckums Branch",8634
+"2.3 Yellow House","3.4 Puckum's Branch",8634
+"2.3 Yellow House","3.6 Marshyhope/Below Puckum's Branch",10967
+"2.3 Yellow House","3.6 Below Puckum's Branch",10967
+"2.3 Yellow House","3.8 Marshyhope/Above Brookview Bridge",12778
+"2.3 Yellow House","3.8 Above Brookview Bridge",12778
+"2.3 Yellow House","Marshyhope/Brookview buoy",13269
+"2.3 Yellow House","4 Marshyhope/Brookview buoy",14078
+"2.3 Yellow House","4 Brookview buoy",14078
+"2.3 Yellow House","4.2 Below Brookview",15468
+"2.3 Yellow House","4.2 Marshyhope/Below Brookview",15468
+"2.3 Yellow House","4.4 Above Walnut Landing Rd.",16766
+"2.3 Yellow House","4.4 Marshyhope/Above Walnut Landing Rd.",16766
+"2.3 Yellow House","4.4 Above Walnut Landing",16766
+"2.3 Yellow House","4.6 Walnut Landing Rd.",18080
+"2.3 Yellow House","4.8 Red Bank",20117
+"2.3 Yellow House","4.9 Marshyhope confluence",21974
+"2.8 Marshyhope/Wright","2.8 Marshyhope/Wright",0
+"2.8 Marshyhope/Wright","2.8 Wright",0
+"2.8 Marshyhope/Wright","3.9 Pump House",1165
+"2.8 Marshyhope/Wright","Marshyhope/Grey Cabin",2064
+"2.8 Marshyhope/Wright","3 Marshyhope/Grey Cabin",2064
+"2.8 Marshyhope/Wright","3 Palmer's Mill",2064
+"2.8 Marshyhope/Wright","3.2 Marshyhope/Below 392 Bridge",4365
+"2.8 Marshyhope/Wright","3.2 Below 392 Bridge",4365
+"2.8 Marshyhope/Wright","3.4 Marshyhope/Puckums Branch",6853
+"2.8 Marshyhope/Wright","3.4 Puckum's Branch",6853
+"2.8 Marshyhope/Wright","3.6 Marshyhope/Below Puckum's Branch",9186
+"2.8 Marshyhope/Wright","3.6 Below Puckum's Branch",9186
+"2.8 Marshyhope/Wright","3.8 Marshyhope/Above Brookview Bridge",10997
+"2.8 Marshyhope/Wright","3.8 Above Brookview Bridge",10997
+"2.8 Marshyhope/Wright","Marshyhope/Brookview buoy",11488
+"2.8 Marshyhope/Wright","4 Marshyhope/Brookview buoy",12297
+"2.8 Marshyhope/Wright","4 Brookview buoy",12297
+"2.8 Marshyhope/Wright","4.2 Below Brookview",13688
+"2.8 Marshyhope/Wright","4.2 Marshyhope/Below Brookview",13688
+"2.8 Marshyhope/Wright","4.4 Above Walnut Landing Rd.",14985
+"2.8 Marshyhope/Wright","4.4 Marshyhope/Above Walnut Landing Rd.",14985
+"2.8 Marshyhope/Wright","4.4 Above Walnut Landing",14985
+"2.8 Marshyhope/Wright","4.6 Walnut Landing Rd.",16299
+"2.8 Marshyhope/Wright","4.8 Red Bank",18336
+"2.8 Marshyhope/Wright","4.9 Marshyhope confluence",20194
+"2.8 Wright","2.8 Wright",0
+"2.8 Wright","3.9 Pump House",1165
+"2.8 Wright","Marshyhope/Grey Cabin",2064
+"2.8 Wright","3 Marshyhope/Grey Cabin",2064
+"2.8 Wright","3 Palmer's Mill",2064
+"2.8 Wright","3.2 Marshyhope/Below 392 Bridge",4365
+"2.8 Wright","3.2 Below 392 Bridge",4365
+"2.8 Wright","3.4 Marshyhope/Puckums Branch",6853
+"2.8 Wright","3.4 Puckum's Branch",6853
+"2.8 Wright","3.6 Marshyhope/Below Puckum's Branch",9186
+"2.8 Wright","3.6 Below Puckum's Branch",9186
+"2.8 Wright","3.8 Marshyhope/Above Brookview Bridge",10997
+"2.8 Wright","3.8 Above Brookview Bridge",10997
+"2.8 Wright","Marshyhope/Brookview buoy",11488
+"2.8 Wright","4 Marshyhope/Brookview buoy",12297
+"2.8 Wright","4 Brookview buoy",12297
+"2.8 Wright","4.2 Below Brookview",13688
+"2.8 Wright","4.2 Marshyhope/Below Brookview",13688
+"2.8 Wright","4.4 Above Walnut Landing Rd.",14985
+"2.8 Wright","4.4 Marshyhope/Above Walnut Landing Rd.",14985
+"2.8 Wright","4.4 Above Walnut Landing",14985
+"2.8 Wright","4.6 Walnut Landing Rd.",16299
+"2.8 Wright","4.8 Red Bank",18336
+"2.8 Wright","4.9 Marshyhope confluence",20194
+"3.9 Pump House","3.9 Pump House",0
+"3.9 Pump House","Marshyhope/Grey Cabin",899
+"3.9 Pump House","3 Marshyhope/Grey Cabin",899
+"3.9 Pump House","3 Palmer's Mill",899
+"3.9 Pump House","3.2 Marshyhope/Below 392 Bridge",3200
+"3.9 Pump House","3.2 Below 392 Bridge",3200
+"3.9 Pump House","3.4 Marshyhope/Puckums Branch",5688
+"3.9 Pump House","3.4 Puckum's Branch",5688
+"3.9 Pump House","3.6 Marshyhope/Below Puckum's Branch",8021
+"3.9 Pump House","3.6 Below Puckum's Branch",8021
+"3.9 Pump House","3.8 Marshyhope/Above Brookview Bridge",9832
+"3.9 Pump House","3.8 Above Brookview Bridge",9832
+"3.9 Pump House","Marshyhope/Brookview buoy",10323
+"3.9 Pump House","4 Marshyhope/Brookview buoy",11132
+"3.9 Pump House","4 Brookview buoy",11132
+"3.9 Pump House","4.2 Below Brookview",12523
+"3.9 Pump House","4.2 Marshyhope/Below Brookview",12523
+"3.9 Pump House","4.4 Above Walnut Landing Rd.",13820
+"3.9 Pump House","4.4 Marshyhope/Above Walnut Landing Rd.",13820
+"3.9 Pump House","4.4 Above Walnut Landing",13820
+"3.9 Pump House","4.6 Walnut Landing Rd.",15134
+"3.9 Pump House","4.8 Red Bank",17171
+"3.9 Pump House","4.9 Marshyhope confluence",19029
+"Marshyhope/Grey Cabin","Marshyhope/Grey Cabin",0
+"Marshyhope/Grey Cabin","3 Marshyhope/Grey Cabin",0
+"Marshyhope/Grey Cabin","3 Palmer's Mill",0
+"Marshyhope/Grey Cabin","3.2 Marshyhope/Below 392 Bridge",2301
+"Marshyhope/Grey Cabin","3.2 Below 392 Bridge",2301
+"Marshyhope/Grey Cabin","3.4 Marshyhope/Puckums Branch",4789
+"Marshyhope/Grey Cabin","3.4 Puckum's Branch",4789
+"Marshyhope/Grey Cabin","3.6 Marshyhope/Below Puckum's Branch",7123
+"Marshyhope/Grey Cabin","3.6 Below Puckum's Branch",7123
+"Marshyhope/Grey Cabin","3.8 Marshyhope/Above Brookview Bridge",8934
+"Marshyhope/Grey Cabin","3.8 Above Brookview Bridge",8934
+"Marshyhope/Grey Cabin","Marshyhope/Brookview buoy",9424
+"Marshyhope/Grey Cabin","4 Marshyhope/Brookview buoy",10233
+"Marshyhope/Grey Cabin","4 Brookview buoy",10233
+"Marshyhope/Grey Cabin","4.2 Below Brookview",11624
+"Marshyhope/Grey Cabin","4.2 Marshyhope/Below Brookview",11624
+"Marshyhope/Grey Cabin","4.4 Above Walnut Landing Rd.",12921
+"Marshyhope/Grey Cabin","4.4 Marshyhope/Above Walnut Landing Rd.",12921
+"Marshyhope/Grey Cabin","4.4 Above Walnut Landing",12921
+"Marshyhope/Grey Cabin","4.6 Walnut Landing Rd.",14236
+"Marshyhope/Grey Cabin","4.8 Red Bank",16272
+"Marshyhope/Grey Cabin","4.9 Marshyhope confluence",18130
+"3 Marshyhope/Grey Cabin","3 Marshyhope/Grey Cabin",0
+"3 Marshyhope/Grey Cabin","3 Palmer's Mill",0
+"3 Marshyhope/Grey Cabin","3.2 Marshyhope/Below 392 Bridge",2301
+"3 Marshyhope/Grey Cabin","3.2 Below 392 Bridge",2301
+"3 Marshyhope/Grey Cabin","3.4 Marshyhope/Puckums Branch",4789
+"3 Marshyhope/Grey Cabin","3.4 Puckum's Branch",4789
+"3 Marshyhope/Grey Cabin","3.6 Marshyhope/Below Puckum's Branch",7123
+"3 Marshyhope/Grey Cabin","3.6 Below Puckum's Branch",7123
+"3 Marshyhope/Grey Cabin","3.8 Marshyhope/Above Brookview Bridge",8934
+"3 Marshyhope/Grey Cabin","3.8 Above Brookview Bridge",8934
+"3 Marshyhope/Grey Cabin","Marshyhope/Brookview buoy",9424
+"3 Marshyhope/Grey Cabin","4 Marshyhope/Brookview buoy",10233
+"3 Marshyhope/Grey Cabin","4 Brookview buoy",10233
+"3 Marshyhope/Grey Cabin","4.2 Below Brookview",11624
+"3 Marshyhope/Grey Cabin","4.2 Marshyhope/Below Brookview",11624
+"3 Marshyhope/Grey Cabin","4.4 Above Walnut Landing Rd.",12921
+"3 Marshyhope/Grey Cabin","4.4 Marshyhope/Above Walnut Landing Rd.",12921
+"3 Marshyhope/Grey Cabin","4.4 Above Walnut Landing",12921
+"3 Marshyhope/Grey Cabin","4.6 Walnut Landing Rd.",14236
+"3 Marshyhope/Grey Cabin","4.8 Red Bank",16272
+"3 Marshyhope/Grey Cabin","4.9 Marshyhope confluence",18130
+"3 Palmer's Mill","3 Palmer's Mill",0
+"3 Palmer's Mill","3.2 Marshyhope/Below 392 Bridge",2301
+"3 Palmer's Mill","3.2 Below 392 Bridge",2301
+"3 Palmer's Mill","3.4 Marshyhope/Puckums Branch",4789
+"3 Palmer's Mill","3.4 Puckum's Branch",4789
+"3 Palmer's Mill","3.6 Marshyhope/Below Puckum's Branch",7123
+"3 Palmer's Mill","3.6 Below Puckum's Branch",7123
+"3 Palmer's Mill","3.8 Marshyhope/Above Brookview Bridge",8934
+"3 Palmer's Mill","3.8 Above Brookview Bridge",8934
+"3 Palmer's Mill","Marshyhope/Brookview buoy",9424
+"3 Palmer's Mill","4 Marshyhope/Brookview buoy",10233
+"3 Palmer's Mill","4 Brookview buoy",10233
+"3 Palmer's Mill","4.2 Below Brookview",11624
+"3 Palmer's Mill","4.2 Marshyhope/Below Brookview",11624
+"3 Palmer's Mill","4.4 Above Walnut Landing Rd.",12921
+"3 Palmer's Mill","4.4 Marshyhope/Above Walnut Landing Rd.",12921
+"3 Palmer's Mill","4.4 Above Walnut Landing",12921
+"3 Palmer's Mill","4.6 Walnut Landing Rd.",14236
+"3 Palmer's Mill","4.8 Red Bank",16272
+"3 Palmer's Mill","4.9 Marshyhope confluence",18130
+"3.2 Marshyhope/Below 392 Bridge","3.2 Marshyhope/Below 392 Bridge",0
+"3.2 Marshyhope/Below 392 Bridge","3.2 Below 392 Bridge",0
+"3.2 Marshyhope/Below 392 Bridge","3.4 Marshyhope/Puckums Branch",2488
+"3.2 Marshyhope/Below 392 Bridge","3.4 Puckum's Branch",2488
+"3.2 Marshyhope/Below 392 Bridge","3.6 Marshyhope/Below Puckum's Branch",4821
+"3.2 Marshyhope/Below 392 Bridge","3.6 Below Puckum's Branch",4821
+"3.2 Marshyhope/Below 392 Bridge","3.8 Marshyhope/Above Brookview Bridge",6633
+"3.2 Marshyhope/Below 392 Bridge","3.8 Above Brookview Bridge",6633
+"3.2 Marshyhope/Below 392 Bridge","Marshyhope/Brookview buoy",7123
+"3.2 Marshyhope/Below 392 Bridge","4 Marshyhope/Brookview buoy",7932
+"3.2 Marshyhope/Below 392 Bridge","4 Brookview buoy",7932
+"3.2 Marshyhope/Below 392 Bridge","4.2 Below Brookview",9323
+"3.2 Marshyhope/Below 392 Bridge","4.2 Marshyhope/Below Brookview",9323
+"3.2 Marshyhope/Below 392 Bridge","4.4 Above Walnut Landing Rd.",10620
+"3.2 Marshyhope/Below 392 Bridge","4.4 Marshyhope/Above Walnut Landing Rd.",10620
+"3.2 Marshyhope/Below 392 Bridge","4.4 Above Walnut Landing",10620
+"3.2 Marshyhope/Below 392 Bridge","4.6 Walnut Landing Rd.",11934
+"3.2 Marshyhope/Below 392 Bridge","4.8 Red Bank",13971
+"3.2 Marshyhope/Below 392 Bridge","4.9 Marshyhope confluence",15829
+"3.2 Below 392 Bridge","3.2 Below 392 Bridge",0
+"3.2 Below 392 Bridge","3.4 Marshyhope/Puckums Branch",2488
+"3.2 Below 392 Bridge","3.4 Puckum's Branch",2488
+"3.2 Below 392 Bridge","3.6 Marshyhope/Below Puckum's Branch",4821
+"3.2 Below 392 Bridge","3.6 Below Puckum's Branch",4821
+"3.2 Below 392 Bridge","3.8 Marshyhope/Above Brookview Bridge",6633
+"3.2 Below 392 Bridge","3.8 Above Brookview Bridge",6633
+"3.2 Below 392 Bridge","Marshyhope/Brookview buoy",7123
+"3.2 Below 392 Bridge","4 Marshyhope/Brookview buoy",7932
+"3.2 Below 392 Bridge","4 Brookview buoy",7932
+"3.2 Below 392 Bridge","4.2 Below Brookview",9323
+"3.2 Below 392 Bridge","4.2 Marshyhope/Below Brookview",9323
+"3.2 Below 392 Bridge","4.4 Above Walnut Landing Rd.",10620
+"3.2 Below 392 Bridge","4.4 Marshyhope/Above Walnut Landing Rd.",10620
+"3.2 Below 392 Bridge","4.4 Above Walnut Landing",10620
+"3.2 Below 392 Bridge","4.6 Walnut Landing Rd.",11934
+"3.2 Below 392 Bridge","4.8 Red Bank",13971
+"3.2 Below 392 Bridge","4.9 Marshyhope confluence",15829
+"3.4 Marshyhope/Puckums Branch","3.4 Marshyhope/Puckums Branch",0
+"3.4 Marshyhope/Puckums Branch","3.4 Puckum's Branch",0
+"3.4 Marshyhope/Puckums Branch","3.6 Marshyhope/Below Puckum's Branch",2333
+"3.4 Marshyhope/Puckums Branch","3.6 Below Puckum's Branch",2333
+"3.4 Marshyhope/Puckums Branch","3.8 Marshyhope/Above Brookview Bridge",4144
+"3.4 Marshyhope/Puckums Branch","3.8 Above Brookview Bridge",4144
+"3.4 Marshyhope/Puckums Branch","Marshyhope/Brookview buoy",4635
+"3.4 Marshyhope/Puckums Branch","4 Marshyhope/Brookview buoy",5444
+"3.4 Marshyhope/Puckums Branch","4 Brookview buoy",5444
+"3.4 Marshyhope/Puckums Branch","4.2 Below Brookview",6835
+"3.4 Marshyhope/Puckums Branch","4.2 Marshyhope/Below Brookview",6835
+"3.4 Marshyhope/Puckums Branch","4.4 Above Walnut Landing Rd.",8132
+"3.4 Marshyhope/Puckums Branch","4.4 Marshyhope/Above Walnut Landing Rd.",8132
+"3.4 Marshyhope/Puckums Branch","4.4 Above Walnut Landing",8132
+"3.4 Marshyhope/Puckums Branch","4.6 Walnut Landing Rd.",9446
+"3.4 Marshyhope/Puckums Branch","4.8 Red Bank",11483
+"3.4 Marshyhope/Puckums Branch","4.9 Marshyhope confluence",13341
+"3.4 Puckum's Branch","3.4 Puckum's Branch",0
+"3.4 Puckum's Branch","3.6 Marshyhope/Below Puckum's Branch",2333
+"3.4 Puckum's Branch","3.6 Below Puckum's Branch",2333
+"3.4 Puckum's Branch","3.8 Marshyhope/Above Brookview Bridge",4144
+"3.4 Puckum's Branch","3.8 Above Brookview Bridge",4144
+"3.4 Puckum's Branch","Marshyhope/Brookview buoy",4635
+"3.4 Puckum's Branch","4 Marshyhope/Brookview buoy",5444
+"3.4 Puckum's Branch","4 Brookview buoy",5444
+"3.4 Puckum's Branch","4.2 Below Brookview",6835
+"3.4 Puckum's Branch","4.2 Marshyhope/Below Brookview",6835
+"3.4 Puckum's Branch","4.4 Above Walnut Landing Rd.",8132
+"3.4 Puckum's Branch","4.4 Marshyhope/Above Walnut Landing Rd.",8132
+"3.4 Puckum's Branch","4.4 Above Walnut Landing",8132
+"3.4 Puckum's Branch","4.6 Walnut Landing Rd.",9446
+"3.4 Puckum's Branch","4.8 Red Bank",11483
+"3.4 Puckum's Branch","4.9 Marshyhope confluence",13341
+"3.6 Marshyhope/Below Puckum's Branch","3.6 Marshyhope/Below Puckum's Branch",0
+"3.6 Marshyhope/Below Puckum's Branch","3.6 Below Puckum's Branch",0
+"3.6 Marshyhope/Below Puckum's Branch","3.8 Marshyhope/Above Brookview Bridge",1811
+"3.6 Marshyhope/Below Puckum's Branch","3.8 Above Brookview Bridge",1811
+"3.6 Marshyhope/Below Puckum's Branch","Marshyhope/Brookview buoy",2302
+"3.6 Marshyhope/Below Puckum's Branch","4 Marshyhope/Brookview buoy",3111
+"3.6 Marshyhope/Below Puckum's Branch","4 Brookview buoy",3111
+"3.6 Marshyhope/Below Puckum's Branch","4.2 Below Brookview",4502
+"3.6 Marshyhope/Below Puckum's Branch","4.2 Marshyhope/Below Brookview",4502
+"3.6 Marshyhope/Below Puckum's Branch","4.4 Above Walnut Landing Rd.",5799
+"3.6 Marshyhope/Below Puckum's Branch","4.4 Marshyhope/Above Walnut Landing Rd.",5799
+"3.6 Marshyhope/Below Puckum's Branch","4.4 Above Walnut Landing",5799
+"3.6 Marshyhope/Below Puckum's Branch","4.6 Walnut Landing Rd.",7113
+"3.6 Marshyhope/Below Puckum's Branch","4.8 Red Bank",9150
+"3.6 Marshyhope/Below Puckum's Branch","4.9 Marshyhope confluence",11007
+"3.6 Below Puckum's Branch","3.6 Below Puckum's Branch",0
+"3.6 Below Puckum's Branch","3.8 Marshyhope/Above Brookview Bridge",1811
+"3.6 Below Puckum's Branch","3.8 Above Brookview Bridge",1811
+"3.6 Below Puckum's Branch","Marshyhope/Brookview buoy",2302
+"3.6 Below Puckum's Branch","4 Marshyhope/Brookview buoy",3111
+"3.6 Below Puckum's Branch","4 Brookview buoy",3111
+"3.6 Below Puckum's Branch","4.2 Below Brookview",4502
+"3.6 Below Puckum's Branch","4.2 Marshyhope/Below Brookview",4502
+"3.6 Below Puckum's Branch","4.4 Above Walnut Landing Rd.",5799
+"3.6 Below Puckum's Branch","4.4 Marshyhope/Above Walnut Landing Rd.",5799
+"3.6 Below Puckum's Branch","4.4 Above Walnut Landing",5799
+"3.6 Below Puckum's Branch","4.6 Walnut Landing Rd.",7113
+"3.6 Below Puckum's Branch","4.8 Red Bank",9150
+"3.6 Below Puckum's Branch","4.9 Marshyhope confluence",11007
+"3.8 Marshyhope/Above Brookview Bridge","3.8 Marshyhope/Above Brookview Bridge",0
+"3.8 Marshyhope/Above Brookview Bridge","3.8 Above Brookview Bridge",0
+"3.8 Marshyhope/Above Brookview Bridge","Marshyhope/Brookview buoy",491
+"3.8 Marshyhope/Above Brookview Bridge","4 Marshyhope/Brookview buoy",1300
+"3.8 Marshyhope/Above Brookview Bridge","4 Brookview buoy",1300
+"3.8 Marshyhope/Above Brookview Bridge","4.2 Below Brookview",2690
+"3.8 Marshyhope/Above Brookview Bridge","4.2 Marshyhope/Below Brookview",2690
+"3.8 Marshyhope/Above Brookview Bridge","4.4 Above Walnut Landing Rd.",3988
+"3.8 Marshyhope/Above Brookview Bridge","4.4 Marshyhope/Above Walnut Landing Rd.",3988
+"3.8 Marshyhope/Above Brookview Bridge","4.4 Above Walnut Landing",3988
+"3.8 Marshyhope/Above Brookview Bridge","4.6 Walnut Landing Rd.",5302
+"3.8 Marshyhope/Above Brookview Bridge","4.8 Red Bank",7339
+"3.8 Marshyhope/Above Brookview Bridge","4.9 Marshyhope confluence",9196
+"3.8 Above Brookview Bridge","3.8 Above Brookview Bridge",0
+"3.8 Above Brookview Bridge","Marshyhope/Brookview buoy",491
+"3.8 Above Brookview Bridge","4 Marshyhope/Brookview buoy",1300
+"3.8 Above Brookview Bridge","4 Brookview buoy",1300
+"3.8 Above Brookview Bridge","4.2 Below Brookview",2690
+"3.8 Above Brookview Bridge","4.2 Marshyhope/Below Brookview",2690
+"3.8 Above Brookview Bridge","4.4 Above Walnut Landing Rd.",3988
+"3.8 Above Brookview Bridge","4.4 Marshyhope/Above Walnut Landing Rd.",3988
+"3.8 Above Brookview Bridge","4.4 Above Walnut Landing",3988
+"3.8 Above Brookview Bridge","4.6 Walnut Landing Rd.",5302
+"3.8 Above Brookview Bridge","4.8 Red Bank",7339
+"3.8 Above Brookview Bridge","4.9 Marshyhope confluence",9196
+"Marshyhope/Brookview buoy","Marshyhope/Brookview buoy",0
+"Marshyhope/Brookview buoy","4 Marshyhope/Brookview buoy",809
+"Marshyhope/Brookview buoy","4 Brookview buoy",809
+"Marshyhope/Brookview buoy","4.2 Below Brookview",2200
+"Marshyhope/Brookview buoy","4.2 Marshyhope/Below Brookview",2200
+"Marshyhope/Brookview buoy","4.4 Above Walnut Landing Rd.",3497
+"Marshyhope/Brookview buoy","4.4 Marshyhope/Above Walnut Landing Rd.",3497
+"Marshyhope/Brookview buoy","4.4 Above Walnut Landing",3497
+"Marshyhope/Brookview buoy","4.6 Walnut Landing Rd.",4811
+"Marshyhope/Brookview buoy","4.8 Red Bank",6848
+"Marshyhope/Brookview buoy","4.9 Marshyhope confluence",8706
+"4 Marshyhope/Brookview buoy","4 Marshyhope/Brookview buoy",0
+"4 Marshyhope/Brookview buoy","4 Brookview buoy",0
+"4 Marshyhope/Brookview buoy","4.2 Below Brookview",1391
+"4 Marshyhope/Brookview buoy","4.2 Marshyhope/Below Brookview",1391
+"4 Marshyhope/Brookview buoy","4.4 Above Walnut Landing Rd.",2688
+"4 Marshyhope/Brookview buoy","4.4 Marshyhope/Above Walnut Landing Rd.",2688
+"4 Marshyhope/Brookview buoy","4.4 Above Walnut Landing",2688
+"4 Marshyhope/Brookview buoy","4.6 Walnut Landing Rd.",4002
+"4 Marshyhope/Brookview buoy","4.8 Red Bank",6039
+"4 Marshyhope/Brookview buoy","4.9 Marshyhope confluence",7897
+"4 Brookview buoy","4 Brookview buoy",0
+"4 Brookview buoy","4.2 Below Brookview",1391
+"4 Brookview buoy","4.2 Marshyhope/Below Brookview",1391
+"4 Brookview buoy","4.4 Above Walnut Landing Rd.",2688
+"4 Brookview buoy","4.4 Marshyhope/Above Walnut Landing Rd.",2688
+"4 Brookview buoy","4.4 Above Walnut Landing",2688
+"4 Brookview buoy","4.6 Walnut Landing Rd.",4002
+"4 Brookview buoy","4.8 Red Bank",6039
+"4 Brookview buoy","4.9 Marshyhope confluence",7897
+"4.2 Below Brookview","4.2 Below Brookview",0
+"4.2 Below Brookview","4.2 Marshyhope/Below Brookview",0
+"4.2 Below Brookview","4.4 Above Walnut Landing Rd.",1297
+"4.2 Below Brookview","4.4 Marshyhope/Above Walnut Landing Rd.",1297
+"4.2 Below Brookview","4.4 Above Walnut Landing",1297
+"4.2 Below Brookview","4.6 Walnut Landing Rd.",2612
+"4.2 Below Brookview","4.8 Red Bank",4648
+"4.2 Below Brookview","4.9 Marshyhope confluence",6506
+"4.2 Marshyhope/Below Brookview","4.2 Marshyhope/Below Brookview",0
+"4.2 Marshyhope/Below Brookview","4.4 Above Walnut Landing Rd.",1297
+"4.2 Marshyhope/Below Brookview","4.4 Marshyhope/Above Walnut Landing Rd.",1297
+"4.2 Marshyhope/Below Brookview","4.4 Above Walnut Landing",1297
+"4.2 Marshyhope/Below Brookview","4.6 Walnut Landing Rd.",2612
+"4.2 Marshyhope/Below Brookview","4.8 Red Bank",4648
+"4.2 Marshyhope/Below Brookview","4.9 Marshyhope confluence",6506
+"4.4 Above Walnut Landing Rd.","4.4 Above Walnut Landing Rd.",0
+"4.4 Above Walnut Landing Rd.","4.4 Marshyhope/Above Walnut Landing Rd.",0
+"4.4 Above Walnut Landing Rd.","4.4 Above Walnut Landing",0
+"4.4 Above Walnut Landing Rd.","4.6 Walnut Landing Rd.",1314
+"4.4 Above Walnut Landing Rd.","4.8 Red Bank",3351
+"4.4 Above Walnut Landing Rd.","4.9 Marshyhope confluence",5209
+"4.4 Marshyhope/Above Walnut Landing Rd.","4.4 Marshyhope/Above Walnut Landing Rd.",0
+"4.4 Marshyhope/Above Walnut Landing Rd.","4.4 Above Walnut Landing",0
+"4.4 Marshyhope/Above Walnut Landing Rd.","4.6 Walnut Landing Rd.",1314
+"4.4 Marshyhope/Above Walnut Landing Rd.","4.8 Red Bank",3351
+"4.4 Marshyhope/Above Walnut Landing Rd.","4.9 Marshyhope confluence",5209
+"4.4 Above Walnut Landing","4.4 Above Walnut Landing",0
+"4.4 Above Walnut Landing","4.6 Walnut Landing Rd.",1314
+"4.4 Above Walnut Landing","4.8 Red Bank",3351
+"4.4 Above Walnut Landing","4.9 Marshyhope confluence",5209
+"4.6 Walnut Landing Rd.","4.6 Walnut Landing Rd.",0
+"4.6 Walnut Landing Rd.","4.8 Red Bank",2037
+"4.6 Walnut Landing Rd.","4.9 Marshyhope confluence",3894
+"4.8 Red Bank","4.8 Red Bank",0
+"4.8 Red Bank","4.9 Marshyhope confluence",1858
+"4.9 Marshyhope confluence","4.9 Marshyhope confluence",0
