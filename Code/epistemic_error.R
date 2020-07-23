@@ -36,3 +36,6 @@ dets <- dets[, next_station := NULL]
 
 
 # Find distances between sites ----
+dist_df <- fread('data/derived/receiver_distances.csv')
+
+test <- dets[dist_df, on = c(station = 'from')]
