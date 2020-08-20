@@ -44,8 +44,8 @@ get_flowlines <- function(streamorder, mapRange){
 
 
 # Find bounding box of Nanticoke ----
-lats <- c(38.2218, 38.677076)
-longs <- c(-75.925468, -75.548937)
+lats <- c(38.22, 38.678)
+longs <- c(-75.9255, -75.54894)
 
 
 
@@ -56,9 +56,11 @@ flowlines <- get_flowlines(1, c(longs[1] - 0.01, longs[2] + 0.01,
                                 lats[1] - 0.01, lats[2] + 0.01))
 
 
-##  Select Marshyhope Creek
-flowlines <- flowlines[grepl('Nanti', flowlines$gnis_name),]
+##  Select Nanticoke River; Deep, Broad, and Marshyhope Creeks
+flowlines <- flowlines[grepl('Nanti|Deep|Broad|Marshy', flowlines$gnis_name),]
 
+### Drop the wrong Broad Creek
+flowlines <- flowlines[flowlines$gnis_id != 583403,]
 
 
 # Export ----
