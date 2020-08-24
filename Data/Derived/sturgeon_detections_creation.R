@@ -7,9 +7,11 @@ cl <- parallel::makeCluster(
 )
 
 ## Pull in detections
-detections <- setDT(
-  vemsort('p:/obrien/biotelemetry/detections/dnr/marshyhope', clust = cl)
-)
+detections <- lapply(file.path('p:/obrien/biotelemetry/detections/dnr',
+                               c('marshyhope', 'nanticoke')),
+                     vemsort, clust = cl)
+detections <- rbindlist(detections)
+
 
 ## Close cluster
 parallel::stopCluster(cl)
@@ -17,13 +19,19 @@ parallel::stopCluster(cl)
 
 
 # Select sturgeon tagged as of 2020-09
-detections <- detections[transmitter %in% paste0('A69-9001-',
-                                                 c(seq(21063, 21072, 1),
-                                                   seq(23900, 23904, 1),
-                                                   seq(26350, 26354, 1),
-                                                   seq(27543, 27547, 1),
-                                                   seq(18009, 18010, 1),
-                                                   seq(18977, 18979, 1)))]
+detections <- detections[transmitter %in%
+  # MDNR transmitters
+  paste0('A69-9001-',
+         c(# MDNR transmitters
+           seq(21063, 21072, 1),
+           seq(23900, 23904, 1),
+           seq(26350, 26354, 1),
+           seq(27543, 27547, 1),
+           seq(18009, 18010, 1),
+           seq(18977, 18979, 1),
+           # DNREC transmitters
+           10157,
+           seq(21060, 21062, 1)))]
 
 
 
