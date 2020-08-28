@@ -9,10 +9,9 @@ flowline <- flowline %>%
 
   # Combine different sections into one object
   group_by(gnis_name) %>%
-  summarize(geom = st_combine(geom)) %>%
+  summarize(geom = st_combine(geom), .groups = 'keep') %>%
 
   # Merge within-object lines together
-  group_by(gnis_name) %>%
   summarize(geom = st_line_merge(geom)) %>%
   st_transform(32618)
 
@@ -47,4 +46,25 @@ cumsum(nan_split)
 
 
 
-#  ----
+# Break the line that makes up the flowline into points 1 km apart from each other ----
+rkms <- flowline %>%
+  st_line_sample(density = 1/1000) %>%
+  st_zm() %>%
+  st_as_sf() %>%
+  mutate(body = flowline$gnis_name) %>%
+  st_cast('POINT', ids = body) %>%
+  rbind(lwgeom::st_endpoint(flowline) %>%
+          st_as_sf() %>%
+          mutate(body = flowline$gnis_name)) %>%
+  st_transform(4326) %>%
+  group_by(body) %>%
+  mutate(rkm = (length(body)-1):0) %>%
+  ungroup() %>%
+  mutate(lat = st_coordinates(.)[,2],
+         long = st_coordinates(.)[,1]) %>%
+  as.data.frame() %>%
+  mutate(x = NULL) %>%
+  arrange(body, rkm)
+
+
+write.csv(rkms, 'data/raw/nanticoke_system_rkms.csv', row.names = F)
