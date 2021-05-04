@@ -1,0 +1,160 @@
+---
+title: "Marshyhope VPS Preparation and Submission"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'p:/obrien/biotelemetry/marshyhope')
+```
+
+The price of VPS analysis is based both on the number of receivers deployed and the length of time you want analyzed, though at this time, the bigger driver of cost is the length of time. Since we're only interested in Atl. sturgeon and they were in the system for a shorter period of time than we had the array deployed, we want to trim down our data set by 1) finding the sturgeon in the array and 2) removing data before the first sturgeon arrived and after the last sturgeon left.
+
+## Find the sturgeon transmitters in the VPS
+
+According to C. Stence (MDNR), the sturgeon in the system were:
+
+| Tag ID          | Owner 
+|-----------------|--------
+| A69-9001-18009  |	Stence
+| A69-9001-18010	| Stence
+| A69-9001-18980	| Stence
+| A69-9001-18981	| Stence
+| A69-9001-18983	| Stence
+| A69-9001-21065	| Stence
+| A69-9001-21069	| Stence
+| A69-9001-21071	| Stence
+| A69-9001-23903	| Stence
+| A69-9001-23904	| Stence
+| A69-9001-26352	| Stence
+| A69-9001-26353	| Stence
+| A69-9001-27543	| Stence
+| A69-9001-27545	| Stence
+| A69-9001-10157	| Ian Park
+| A69-9001-21909	| Matt Balazik
+
+In addition, the receivers all have sync tags associated with them. They are:
+
+| Receiver  |   Sync tag ID       | Site                |   Owner
+|-----------|---------------------|---------------------|----------
+| NA        |   A69-1602-29927    |   Float through     |   UMCES
+| 546211    |   A69-1601-60675    |   N3                |   UMCES
+| 546303    |   A69-1601-60767    |   S3                |   UMCES
+| 546305    |   A69-1601-60769    |   N6                |   UMCES
+| 546323    |   A69-1601-60787    |   S2                |   UMCES
+| 546457    |   A69-1601-60921    |   N2                |   UMCES
+| 546465    |   A69-1601-60929    |   S1                |   UMCES
+| 546467    |   A69-1601-60931    |   S5                |   UMCES
+| 546469    |   A69-1601-60933    |   N5                |   UMCES
+| 546471    |   A69-1601-60935    |   S4                |   UMCES
+| 546472    |   A69-1601-60936    |   N4                |   UMCES
+| 128943    |   A69-1602-29926    |   Above Brookview   |   MDNR
+| 123777    |   A69-9006-12727    |   Brookview         |   MDNR
+
+Let's check these with the data. 
+
+```{r}
+library(data.table)
+
+# List the VPS CSV files
+vps_files <- list.files('vps/', pattern = '.csv', full.names = T)
+
+# Import each file into a slot of a list
+vps_files <- lapply(vps_files, fread,
+                    col.names = function(.) tolower(gsub('[) (]', '_', .)))
+
+# Combine the files into a data frame
+vps <- rbindlist(vps_files)
+
+# Display all the transmitters recorded, in order
+sort(unique(vps$transmitter))
+```
+
+That lists all of the transmitters that were logged in the VPS. Keep in mind that this contains false detections due to code collision, array sync tags, and sturgeon. Let's remove the known sturgeon transmitters and sync tags.
+
+```{r}
+known_tags <- data.table(
+  transmitter = c(paste('A69-9001',
+                      c(18009, 18010, 18980, 18981, 18983, 21065,
+                        21069, 21071, 23903, 23904, 26352,
+                        26353, 27543, 27545, 10157, 21909),
+                      sep = '-'),
+                  'A69-1602-29927', 
+                  paste('A69-1601',
+                        c(60675, 60767, 60769, 60787, 60921, 60929,
+                          60931, 60933, 60935, 60936),
+                        sep = '-'),
+                  'A69-1602-29926',
+                  'A69-9006-12727'),
+  type = c(rep('fish', 16), 'float through', rep('sync', 12)),
+  owner = c(rep('MDNR', 14), 'DNREC', 'VCU', rep('UMCES', 13))
+)
+
+vps_unid <- vps[!known_tags, on = 'transmitter']
+
+sort(unique(vps_unid$transmitter))
+```
+
+Cross reference these with the [ACT Network](https://www.theactnetwork.com/) active transmitter list to see if there are any that are obviously not false detections
+
+```{r}
+act_data <- readxl::read_excel('ActiveTransmitters_20201026.xlsx')
+act_data <- setDT(act_data)
+
+act_match <- act_data[vps_unid, on = c('Tag ID Code Standard' = 'transmitter'),
+                      nomatch = 0]
+
+nrow(act_match)
+```
+
+We have an empty data frame, so the unidentified detections are likely all false. Additionally, most of the unidentified detections only occur 1-2 times, which is another sign that they are erroneous.
+
+```{r}
+vps_unid[, .N, by = 'transmitter'][order(-N)]
+```
+
+## Find the first and last day of sturgeon detections
+
+```{r}
+vps <- vps[known_tags[type == 'fish'], on = 'transmitter']
+
+vps[, range(date_and_time__utc_, na.rm = T)]
+```
+
+Seems that sturgeon were recorded between August 11 and October 11 (UTC). We deployed the VPS on August 27 so we won't need to trim the front end of our data set, but we only need data up to October 11 (EDT) included. Thus, we only need to request 46 days of analysis from Innovasea:
+
+```{r}
+as.Date('2020-10-11') - as.Date('2020-08-26')
+```
+
+## Receiver temperature and depths
+Innovasea asks for the min/max/assumed temperature, salinity, and depth of the animals in the array, as they are used to calculate the speed of sound in their time-of-arrival positioning algorithm. 
+
+### Salinity
+
+We are in fresh water here, so salinity is all 0. 
+
+### Depth
+
+I don't think the animals have depth-transponding transmitters, so we just have to take a guess at depth. We know that sturgeon surface, so 0 meters is a good minimum. The depth here is less than 30 ft, so I'll guess a maximum depth of 10 meters. We think that sturgeon spend most of their time near the bottom, so I'll say that their mean depth is also 10 meters.
+
+### Temperature
+
+Luckily, the receivers log temperature and it's somewhat consistent through the water column, so we can just see what the min/max/mean temperature was between deployment on August 27 and the last day sturgeon were present on October 11.
+
+```{r}
+# Import events.
+#   The "col.names" stuff is just a fancy way to force the column names into lower
+#   case and remove spaces and parentheses
+events <- fread('marshyhopevps_event_export.csv',
+                col.names = function(.) tolower(gsub('[( )]', '', .)))
+
+temperature <- events[description == 'Temperature' &
+                        dateandtimeutc %between% c('2020-08-27', '2020-10-11')]
+temperature <- temperature[, data := as.numeric(data)]
+
+temperature[, .(min = min(data), mean = mean(data), max = max(data))]
+
+```
+
+So, we'll go with a minimum of 17, mean of 23, and maximum of 36.

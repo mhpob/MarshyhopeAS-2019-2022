@@ -1,0 +1,282 @@
+---
+title: "VPS prelim analysis"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = 'c:/users/darpa2/analysis/marshyhopeas-2019-22')
+```
+
+## Packages
+```{r}
+library(ggplot2); library(dplyr); library(sf)
+```
+
+
+## Data description
+Although I'll use the `dplyr` packaged for the rest of this (I assume it's what you're most used to), I'm using `fread` from the `data.table` package to import the CSV detections. We wind up with >42k detections, and `fread` can read that *very* quickly.
+
+```{r}
+positions <- data.table::fread(file.path('p:/obrien/biotelemetry/marshyhope/vps',
+                                         'VPS-NanticokeRiver-Brookview-01-Results-20210106',
+                                         'positions',
+                                         'all-calc-positions.csv'),
+                               
+                               # this just applies base::tolower to the column names
+                               col.names = tolower)
+
+positions
+```
+
+We have columns of:
+
+- **transmitter**
+  - These are transmitter names. Sync tags will be associated with a station name ("Brookview", "S2", e.g.); animal tags will have the numeric back matter code.
+- **detectedid**
+  - Full transmitter string
+- **datetime**
+  - Date and time (yyyy-mm-dd hh:mm:ss) in UTC
+- **x**/**y**
+  - The X and Y coordinates in the azimuthal equidistant coordinate system that VEMCO uses to calculate positions
+-   **d**
+  - The depth used to calculate the speed of sound. If it is referring to a depth-transponding tag, that depth will be here. Otherwise the depth that VEMCO has assumed the transmitter to be is listed here.
+- **lat**/**lon**
+  - The back-transformed X/Y coordinates to longitude and latitude
+- **n**
+  - The number of triangles used to calculate position
+- **hpe**
+  - "Horizontal Position Error" this is unitless and self-referential to the system, as the error is **hyperbolic** in shape.
+- **hpem**
+  - This is the HPE in meters, calculated based off of an assumed known position of the stations. Unfortunately, HPE and HPEm do not correlate as well as we would like them to (see [Smith 2013](http://www.oceans-research.com/wp-content/uploads/2016/09/understanding-hpe-vps.pdf))
+- **temp**/**depth**/**accel**
+  - Values reported by the transmitters
+- **drx**
+  - Receivers that heard the detection
+- **urx**
+  - Detections from **drx** that were used to calculate the position
+  
+  
+Since I'll use it to filter which detections we want to use, here are the transmitters listed in the data set. Note that, in this case, our VPS stations contain text while fish detections only contain numbers.
+
+```{r}
+unique(positions$transmitter)
+```
+
+
+## Start mapping
+Since this is, inherently, spatial data, I'm going to treat it as such using functions in the `sf` package. The first step is to tell R that this is spatial data.
+
+- `st_as_sf(positions`
+  - "R, treat the data frame called 'positions' as a spatial object"
+- `coords = c('lon', 'lat')`
+  - "The X coordinate is called 'lon' and the Y coordinate is called 'lat'"
+- `crs = 4326`
+  - "The coordinate reference system (CRS) is EPSG code 4326 (i.e., they're GPS coordinates)"
+
+```{r}
+positions <- positions %>% 
+  st_as_sf(coords = c('lon', 'lat'),
+           crs = 4326)
+
+ggplot(data = positions) +
+  geom_sf()
+
+```
+
+What about just the fish positions? The code below uses regular expressions to filter the data for values in the transmitter column that start with ("^") a number ("\\\\d").
+```{r}
+fish <- positions %>%
+  filter(grepl('^\\d', transmitter))
+
+ggplot(data = fish) +
+  geom_sf()
+```
+
+
+It will be helpful if we have a base map. *However*, the shapefile that we are about to use to map the data is in a different CRS:
+
+```{r}
+st_read('data/raw/NHD_H_0208_HU4_GDB.gdb',
+        layer = 'nhdarea',
+        query = 'SELECT * FROM nhdarea WHERE fid = 1') %>% 
+  st_crs()
+```
+
+See the last line, the one that has "EPSG" in it? That's the EPSG number of the CRS that we're going to transform the positions into so that we can map them on top of each other.
+
+```{r}
+fish <- fish %>% 
+  st_transform(4269)
+```
+
+### Import a big shapefile
+
+The map that we're going to use comes straight from USGS and contains a whole bunch of information on waterways from the Appalachians to the coastal bays. Because of this, I'm going to use some code gymnastics to crop the shapefile before pulling it into memory. This prevents my computer from blowing up.
+
+```{r}
+crop_box <- fish %>%
+  # Find the bounding box
+  st_bbox() %>%
+  # Increase the bounds a little
+  + c(-0.001, -0.001, 0.001, 0.001) %>% 
+  # Convert that bounding box to "simple features collection"
+  st_as_sfc()
+
+mh_shape <- st_read('data/raw/NHD_H_0208_HU4_GDB.gdb',
+                    layer = 'nhdarea',
+                    
+                    # st_as_text converts the cropping box to "well-known text", which is 
+                    #   a specific way to format spatial data. wkt_filter imports
+                    #   anything inside or touching this box.
+                    wkt_filter = st_as_text(crop_box))
+
+# st_crop cuts off anything that was touching, but is outside of, the box.
+mh_shape <- mh_shape %>%
+  st_crop(crop_box)
+```
+
+Now plot them together.
+
+```{r}
+ggplot() +
+  geom_sf(data = mh_shape) +
+  geom_sf(data = fish)
+```
+
+Similarly, we will want to import the [habitat polygons](https://www.habitat.noaa.gov/chesapeakebay/gis/Seafloor_Mapping_Geodatabases/nanticoke_and_tributaries/), which can be rather large (1.6 GB!!).
+
+```{r}
+habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
+                   layer = 'RiverBed_Habitat_Polygons_CMECS_SC_01132016',
+                   wkt_filter = st_as_text(crop_box %>% st_transform(26918))) %>%
+  st_transform(st_crs(mh_shape)) %>%
+  st_make_valid() %>%
+  st_crop(crop_box)
+```
+
+Huzzah!
+```{r}
+ggplot() +
+  geom_sf(data = mh_shape, fill = NA) +
+  geom_sf(data = habitat, aes(fill = Group_)) + 
+  geom_sf(data = fish, alpha = 0.1)
+```
+
+
+
+## Filtering high-error points
+The issue, now, is that some of those points has pretty high error. Since the HPE reported is self-referential, VEMCO suggests creating a cutoff percentile (75%, 80%, 90%, etc.) and selecting all detections under that
+
+```{r}
+fish <- fish %>% 
+  mutate(quant_bin = cut(hpe,
+                         breaks =quantile(hpe,
+                                  probs = c(0, .25 ,.5, .75, .9, 1)
+                                  )
+                         ),
+         )
+
+ggplot() +
+  geom_sf(data = mh_shape) +
+  geom_sf(data = fish) +
+  facet_wrap(~ quant_bin)
+
+```
+
+
+```{r}
+ggplot() +
+  geom_sf(data = mh_shape) +
+  geom_sf(data = fish, aes(color = transmitter)) +
+  facet_wrap(~ quant_bin)
+```
+
+
+Drop detections >90th percentile in error. Note that the one random NA is actually HPE = 2.6, the minimum value of HPE. I don't know why the `quantile` function does that.
+
+```{r}
+fish <- fish %>% 
+  filter(hpe < 40.3)
+
+ggplot() +
+  geom_sf(data = mh_shape) +
+  geom_sf(data = fish, aes(color = transmitter)) +
+  facet_wrap(~ quant_bin)
+```
+
+
+## Start visualizing
+Previously, we liked to look at things by week.
+
+```{r}
+fish <- fish %>% 
+  mutate(wk = lubridate::week(datetime))
+
+
+ggplot() +
+  geom_sf(data = mh_shape, fill = NA) +
+  geom_sf(data = habitat, aes(fill = Group_)) +
+  geom_sf(data = fish) +
+  facet_wrap(~ wk)
+```
+
+That's a lot of points. Let's replace with a lot of plots!
+
+```{r}
+ggplot() +
+  geom_sf(data = mh_shape, fill = NA) +
+  geom_sf(data = habitat, aes(fill = Group_)) +
+  geom_sf(data = fish) +
+  facet_grid(wk ~ transmitter)
+```
+
+We'll need a bigger screen for that, but you get the gist.
+
+
+## Spatial analyses
+One thing we wanted to do the last time around was point-in-polygon analyses. This just counts the number of points that fall within a given polygon.
+
+```{r}
+pip <- fish %>% 
+  st_intersection(habitat)
+```
+
+```{r}
+ggplot() +
+  geom_bar(data = pip, aes(x = Group_))
+
+ggplot() +
+  geom_bar(data = pip, aes(x = Group_)) +
+  facet_wrap(~transmitter)
+```
+
+What about per-area?
+
+```{r, warning=FALSE}
+area_agg <- habitat %>% 
+  group_by(Group_) %>% 
+  summarize(area = st_area(
+    st_union(
+      Shape
+    )
+  )) %>% 
+  st_drop_geometry()
+
+pip_scaled <- pip %>%
+  group_by(Group_, transmitter) %>% 
+  summarize(n = n()) %>% 
+  left_join(area_agg, by = 'Group_')
+
+
+ggplot(data = pip_scaled) +
+  geom_col(aes(x = Group_, y = n / as.numeric(area)))
+
+ggplot(data = pip_scaled) +
+  geom_col(aes(x = Group_, y = n / as.numeric(area))) +
+  facet_wrap(~ transmitter)
+
+```
+
