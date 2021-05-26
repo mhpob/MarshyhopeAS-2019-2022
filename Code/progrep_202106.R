@@ -67,7 +67,8 @@ nrow(fish)
 ## Convert to spatial
 fish <- fish %>%
   st_as_sf(coords = c('lon', 'lat'),
-           crs = 4326)
+           crs = 4326,
+           remove = F)
 
 station <- station %>%
   filter(transmitter != 'Float through',
@@ -115,7 +116,17 @@ habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticok
                    wkt_filter = st_as_text(crop_box %>% st_transform(26918))) %>%
   st_transform(st_crs(mh_shape)) %>%
   st_make_valid() %>%
-  st_crop(crop_box)
+  st_crop(crop_box) %>%
+  # order bottom type
+  mutate(Group_ = factor(Group_,
+                            ordered = T,
+                            levels = c('Gravel_Mixes',
+                                       'Sand',
+                                       'Muddy_Sand',
+                                       'Sandy_Mud',
+                                       'Mud',
+                                       'Unclassified')))
+
 
 
 
@@ -173,7 +184,8 @@ pip_scaled <- fish %>%
   summarize(n = n()) %>%
   left_join(area_agg, by = 'Group_') %>%
   mutate(area = as.numeric(area),
-         transmitter = as.factor(transmitter))
+         transmitter = as.factor(transmitter),
+         Group_  = factor(Group_, ordered = F))
 
 
 
@@ -203,12 +215,19 @@ coefs <- coef(mod)$transmitter %>%
                       names_to = 'Group_') %>%
   mutate(Group_ = ifelse(Group_ == '(Intercept)', 'Gravel_Mixes', Group_),
          Group_ = gsub('Group_', '', Group_),
+         Group_ = factor(Group_, ordered = T,
+                         levels = c('Gravel_Mixes',
+                                    'Sand',
+                                    'Muddy_Sand',
+                                    'Sandy_Mud',
+                                    'Mud',
+                                    'Unclassified')),
          value = exp(value) * 100)
 
 
 all <- ggplot(data = cbind(data.frame(estim$emmeans),
-                    lab = c('B', 'D', 'B',
-                            'A', 'C', 'E'))) +
+                    lab = c('B', 'A', 'B',
+                            'C', 'D', 'E'))) +
   geom_pointrange(aes(x = Group_, y = rate, ymin = asymp.LCL, ymax = asymp.UCL,
                  color = Group_), shape = 17, size = 1,
                  show.legend = F) +
@@ -273,3 +292,122 @@ dev.off()
 
 
 
+
+
+# Calculate kernel density estimate (KDE) ----
+library(ks)
+kde_func <- function(spl.factor = 'wk', cont.level = '50%'){
+  pos.list <- split(as.data.frame(fish)[, c('lon','lat')],
+                    lapply(spl.factor, function(x) data.frame(fish)[, x]))
+
+  ## lapply with break if Hpi doesn't converge. Use tryCatch to set failures as
+  ##   NULL and move on to next set of detections.
+  pos.bandw <- lapply(X = pos.list, FUN = function(x){
+    tryCatch(Hpi(x), error = function(e){NULL})
+  })
+  pos.bandw <- pos.bandw[!sapply(pos.bandw, is.null)]
+  if(length(pos.list) != length(pos.bandw)){
+    cat(paste('Transmitters did not converge.',
+              paste(setdiff(names(pos.list), names(pos.bandw)), collapse = ', '),
+              'dropped.'))
+    pos.list <- pos.list[names(pos.bandw)]
+  }
+
+  pos.kde <- lapply(X = names(pos.list),
+                    FUN = function(i){kde(x = pos.list[[i]],
+                                          H = pos.bandw[[i]])})
+  names(pos.kde) <- names(pos.list)
+
+
+  # Prepare KDE for plotting ----
+  # Create a list (transmitters) of lists (Contour groups)
+  temporary.contour.function <- function(i, cont.level){
+    contourLines(x = pos.kde[[i]]$eval.points[[1]],
+                 y = pos.kde[[i]]$eval.points[[2]],
+                 z = pos.kde[[i]]$estimate,
+                 levels = pos.kde[[i]]$cont[cont.level])
+  }
+
+  kde.plot <- lapply(names(pos.kde),
+                     temporary.contour.function, cont.level = cont.level)
+
+  names(kde.plot) <- names(pos.list)
+
+  for(i in seq(1, length(kde.plot), 1)){
+    names(kde.plot[[i]]) <- seq(1, length(kde.plot[[i]]), 1)
+    kde.plot[[i]] <- lapply(kde.plot[[i]], data.frame)
+  }
+
+  kde.plot <- lapply(names(kde.plot), function(i){do.call(rbind, kde.plot[[i]])})
+  names(kde.plot) <- names(pos.list)
+  kde.plot <- do.call(rbind, kde.plot)
+
+  for(i in 1:length(spl.factor)){
+    kde.plot[, spl.factor[i]] <- sapply(strsplit(row.names(kde.plot), "[.]"),
+                                        `[[`, i)
+  }
+
+  kde.plot$contour <- do.call(paste,
+                              c(lapply(spl.factor, function(x) kde.plot[, x]),
+                                sep = '.'))
+
+  kde.plot$contour <- paste(kde.plot$contour,
+                            unlist(lapply(strsplit(row.names(kde.plot), "[.]"),
+                                          `[[`, i + 1)),
+                            sep = ':')
+  row.names(kde.plot) <- NULL
+  kde.plot
+}
+
+kde_wk50 <- kde_func()
+kde_trans50 <- kde_func('transmitter')
+kde_75 <- kde_func('d', '25%')
+
+# Plotting ----
+agg_png('vps.png', width = 1175, height = 765, scaling = 1.5)
+
+ggplot() +
+  geom_sf(data = mh_shape, fill = 'lightgray') +
+  geom_sf(data = habitat, aes(fill = Group_)) +
+  geom_path(data = kde_trans50, aes(x, y, group = contour),
+            color = 'white', lwd = 1) +
+  scale_fill_viridis_d(option = 'H') +
+  labs(fill = 'Bottom Type') +
+  # facet_wrap(~ transmitter) +
+  labs(x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = c(0.8, 0.13),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        strip.text = element_text(size = 12))
+
+dev.off()
+
+kde_contour <- kde_func('d', c('25%', '50%', '75%')) %>%
+  mutate(level = case_when(level < 84000 ~ '25%',
+                           level > 140000 ~ '50%',
+                           T ~ '75%'))
+
+agg_png('vps_kde.png', width = 1100, height = 615, scaling = 1.5)
+
+ggplot() +
+  geom_sf(data = mh_shape, fill = 'lightgray') +
+  geom_sf(data = habitat, aes(fill = Group_)) +
+  geom_path(data = kde_contour,
+            aes(x, y, group = interaction(contour, level)),
+            color = 'white',
+            lwd = 1) +
+  scale_fill_viridis_d(option = 'H') +
+  labs(fill = 'Bottom Type') +
+  labs(x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = c(0.1, 0.15),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        strip.text = element_text(size = 12))
+
+dev.off()
