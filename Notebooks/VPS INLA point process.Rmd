@@ -1,0 +1,440 @@
+---
+title: "Point Process in INLA"
+output:
+  html_document:
+    df_print: paged
+bibliography: references.bib
+---
+
+I'm going to try and run a point process on the VPS data in INLA, heavily following the method outlined in [@moraga2020]. The same author also has a [free geospatial statistics with INLA textbook](https://www.paulamoraga.com/book-geospatial/) [@moraga2019]. I'd like an excuse to learn INLA, as it is supposed to be a Bayesian method that runs much more quickly than Monte Carlo-based methods, like JAGS or Stan. I've tried to use the `brms` package before, and tend to like it because it uses the same syntax as `mgcv` and `lme4`, for instance, but it takes a while to run all of the simulations on my computer.
+
+The following is just pulling in all of the data.
+
+```{r}
+library(ggplot2); library(patchwork); library(dplyr); library(sf); library(lwgeom)
+library(INLA)
+
+positions <- data.table::fread(file.path('p:/obrien/biotelemetry/marshyhope/vps',
+                                         'VPS-NanticokeRiver-Brookview-01-Results-20210106',
+                                         'positions',
+                                         'all-calc-positions.csv'),
+                               
+                               # this just applies base::tolower to the column names
+                               col.names = tolower)
+
+
+## Fish positions
+fish <- positions %>%
+  filter(grepl('^\\d', transmitter))
+fish <- fish %>% 
+  filter(hpe <= quantile(fish$hpe, 0.9, na.rm = T)) %>%
+  st_as_sf(coords = c('lon', 'lat'),
+           crs = 4326,
+           remove = F) %>%
+  st_transform(4269)
+
+## Import Marshyhope shape (previously cropped to the above fish detections)
+mh_shape <- st_read('data/derived/mhclip_base2020vpsfish.gpkg') %>% 
+  st_zm()
+
+## Import habitat polygons that intersect with the mh_shape polygon
+habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
+                   layer = 'RiverBed_Habitat_Polygons_CMECS_SC_01132016',
+                   wkt_filter = st_as_text(st_geometry(mh_shape))) %>%
+  
+  # order bottom type from gravel to to sand to mud
+  mutate(Group = ifelse(SubGroup == '<Null>', Group_, SubGroup),
+         Group = factor(Group,
+                        ordered = T,
+                        levels = c('Sandy_Gravel',
+                                   'Sand',
+                                   'Muddy_Sand',
+                                   'Sandy_Clay',
+                                   'Sandy_Mud',
+                                   'Mud',
+                                   'Unclassified')))
+```
+
+## Spatial gymnastics
+
+Here is where we stand with all the data we just imported:
+
+```{r}
+ggplot() +
+  geom_sf(data = mh_shape) +
+  geom_sf(data = habitat, aes(fill = Group)) +
+  geom_sf(data = fish, alpha = 0.03, color = 'red') +
+  theme_minimal()
+```
+
+The code above imported any polygon that overlapped with the cropped Marshyhope Creek section. Now we want the full intersection -- basically, we want to have it cropped down another level.
+
+```{r}
+habitat <- habitat %>% 
+  st_intersection(mh_shape)
+
+ggplot() +
+  geom_sf(data = mh_shape) +
+  geom_sf(data = habitat, aes(fill = Group)) +
+  geom_sf(data = fish, alpha = 0.03, color = 'red') +
+  theme_minimal()
+```
+
+We can now see that there are areas that were not classified by the NOAA survey (even as "Unclassified"). They are the surrounding bits that are in gray. We now want to pull those bits out and classify them as "Unclassified"
+
+```{r}
+# Select the important bits
+habitat <- habitat %>% 
+  select(Group)
+
+# Union the habitat polygons (lump them into one big polygon) and then subtract
+#   that from the Marshyhope polygon
+uncl <- st_sym_difference(st_union(habitat), mh_shape)
+
+plot(uncl, col = 'blue')
+
+# Add the new unclassified back in
+habitat <- uncl %>% 
+  st_as_sf()  %>% 
+  rename(Shape = x) %>% 
+  mutate(Group = 'Unclassified') %>% 
+  rbind(habitat)
+
+habitat
+
+
+# Since we don't actually need each individual polygon indexed, we'll group
+#   them all together
+habitat <- habitat %>% 
+  group_by(Group) %>% 
+  summarize(geometry = st_union(Shape))
+
+habitat
+
+ggplot(data = habitat) +
+  geom_sf(aes(fill = Group))
+```
+
+## Adapting the data to fit
+
+[@moraga2020] creates a `raster::raster` data set to discretize the point data, which they then convert back to a vector. I think that I can just discretize the data in `sf`, cutting out the `raster` middle-man. Note that INLA will eventually want grid indexes to run top to bottom, then left to right.
+
+### Make the grid
+
+```{r}
+grid_full <- habitat %>%
+  # Our coordinate reference system has units of meters
+  #   Make a 20m x 20m grid
+  st_make_grid(c(20, 20)) %>% 
+  
+  # Create IDs in the INLA order (top to bottom then left to right)
+  st_as_sf() %>% 
+  mutate(centroid = st_centroid(x)) %>% 
+  cbind(st_coordinates(.$centroid)) %>% 
+  arrange(X, desc(Y)) %>% 
+  transmute(id = rownames(.))
+
+# Select those grid cells that are covered by the polgyon or overlap with the
+#   outline of Marshyhope Creek
+grid <- grid_full[st_covered_by(grid_full, mh_shape, sparse = F) |
+                    st_overlaps(grid_full, mh_shape, sparse = F),]
+
+plot(st_geometry(grid_full))
+plot(st_geometry(grid), add = T, col = 'red')
+plot(st_geometry(habitat), add = T)
+
+```
+
+### Descritize habitat covariate (winner takes all)
+
+Each grid cell will be assigned the bottom type that covers the most area in that grid cell.
+
+```{r}
+bot_type <- grid %>%
+  
+  # Crop the habitat polygons by each grid cell
+  st_intersection(habitat) %>% 
+  
+  # Calculate the area of each bottom type in the grid cell
+  mutate(area = st_area(x)) %>% 
+  
+  # Select the greatest area in each grid cell
+  group_by(id) %>% 
+  filter(area == max(area)) %>% 
+  data.frame()
+
+
+# Join the above back in with the grid
+grid <- grid %>% 
+  left_join(bot_type[, names(bot_type) %in% c('id', 'Group')])
+
+
+ggplot(data = grid) +
+  geom_sf(aes(fill = Group)) +
+  geom_sf(data = habitat, fill = NA, color = 'white') + 
+  theme_minimal()
+```
+
+### Match fish detections with "winner take all" habitat grid
+
+Now we find into which "winner-take-all" habitat each position fell and add that up for each grid cell and transmitter.
+
+```{r}
+fish_grid_id <- fish %>% 
+  st_transform(st_crs(grid)) %>% 
+  st_intersection(grid) %>% 
+  group_by(id, transmitter) %>% 
+  summarize(n_pos = n()) 
+
+n_pos_grid <- grid %>% 
+  full_join(select(data.frame(fish_grid_id), id, transmitter, n_pos)) %>% 
+  mutate(n_pos = ifelse(is.na(n_pos), 0, n_pos))
+
+ggplot(data = n_pos_grid) +
+  geom_sf(aes(fill = Group, alpha = n_pos), color = NA) +
+  facet_wrap(~ transmitter) +
+  theme_minimal()
+```
+
+### Calculate area covered by water
+
+Since we included grid cells that were partially on land, we want to scale the expected observations in that cell accordingly.
+
+```{r}
+ n_pos_grid <- n_pos_grid %>% 
+   # Crop the grid polygons by the Marshyhope shoreline
+   st_intersection(st_geometry(mh_shape)) %>% 
+   # Calculate area of cropped polygons 
+   #    Happens to be saved as "x" in n_pos_grid
+   mutate(area = st_area(x),
+          # convert from 'units' class to "numeric"
+          area = as.numeric(area),
+          # round to nearest sq m
+          area = round(area))
+ 
+ n_pos_grid
+```
+
+## Get data ready for INLA
+
+```{r}
+mod_data <- n_pos_grid %>% 
+  mutate(
+    # Numeric ID for spatial random effects
+    id = as.numeric(id),
+    
+    # Factor transmitter for iid random effects
+    transmitter = as.factor(transmitter),
+    
+    # Factorize group since that helps sometimes
+    Group = as.factor(Group)
+    )
+
+```
+
+## Run the model
+
+```{r}
+res <- inla(n_pos ~ 1 + Group +
+              
+              # Random transmitter effect
+              f(transmitter, model = 'iid') +
+              
+              # Random walk random effect -- "rw2d" for use on a grid
+              f(id, model = 'rw2d',
+                # Needs the number of rows and columns
+                #   Using the bounding box divided by grid size
+                ncol = (st_bbox(grid)$xmax - st_bbox(grid)$xmin) / 20,
+                nrow = (st_bbox(grid)$ymax - st_bbox(grid)$ymin) / 20),
+            family = "poisson", data = mod_data,
+            E = area,
+            control.predictor = list(compute = TRUE),
+            control.compute = list(waic = TRUE))
+```
+
+## Results
+
+```{r}
+summary(res)
+```
+
+### Fixed effects
+
+First, we'll look at the posterior of the bottom type fixed effect.
+
+```{r}
+list_marginals_fixed <- res$marginals.fixed
+
+marginals <- data.frame(do.call(rbind, list_marginals_fixed))
+marginals$group <- rep(names(list_marginals_fixed),
+                       times = sapply(list_marginals_fixed, nrow))
+
+
+ggplot(data = marginals,
+       aes(x = x, y = y)) +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  labs(x = expression(beta[1]), y = "Density") +
+  facet_wrap(~ group, scales = 'free') +
+  theme_minimal()
+```
+
+The "Intercept" in the plot of the marginals is mud: the coefficient for mud is significantly less than zero. With the exception of sandy mud, all of the other bottom types are no different than zero (i.e.: they aren't significant). Sandy mud is significantly greater than zero.
+
+```{r}
+summary_fixed <- res$summary.fixed %>% 
+  mutate(group = gsub('Group', '', row.names(.)),
+         group = ifelse(group == '(Intercept)', 'Mud', group),
+         group = factor(group, levels = c('Sandy_Gravel', 'Sand', 'Muddy_Sand',
+                                          'Sandy_Clay', 'Sandy_Mud', 'Mud',
+                                          'Unclassified'),
+                        ordered = T))
+
+ggplot(data = summary_fixed) +
+  geom_pointrange(aes(x = group, y = `0.5quant`,
+                      ymin = `0.025quant`, ymax = `0.975quant`)) +
+  labs(x = 'Bottom type', y = 'Effect (link scale)') +
+  theme_minimal()
+
+ggplot(data = filter(summary_fixed, group != 'Mud')) +
+  geom_pointrange(aes(x = group, y = `0.5quant`,
+                      ymin = `0.025quant`, ymax = `0.975quant`)) +
+  labs(x = 'Bottom type', y = 'Effect (link scale)') +
+  theme_minimal()
+```
+
+If we look at the median and confidence interval of the coefficients on the same scale we can see that the effect of mud is very poorly resolved. In fact, we need to remove it to see what's going on with the other bottom types. As we saw before, none of the other bottom types are significantly different than zero with the exception of sandy mud.
+
+What does this look like on the response scale (number of positions per 20 m x 20 m grid)?
+
+```{r}
+summary_fixed <- summary_fixed %>% 
+  mutate(resp_0.025quant = exp(`0.025quant`),
+         resp_0.5quant = exp(`0.5quant`),
+         resp_0.975quant = exp(`0.975quant`))
+
+ggplot(data = summary_fixed) +
+  geom_pointrange(aes(x = group, y = resp_0.5quant,
+                      ymin = resp_0.025quant, ymax = resp_0.975quant)) +
+  labs(x = 'Bottom type', y = 'Effect (response scale)') +
+  theme_minimal()
+```
+
+Here, we can see again that mud is predicted to have basically no positions and all other bottom types are roughly equivalent around one position. All in all, bottom type can account for 0-2 positions in each grid cell.
+
+### Random effects
+
+First is the random effect of transmitter (individual fish). There do seem to be some differences here, though no individual fish is significantly different from the others. Note that since this is included as a random effect, everything is pulled toward the mean -- this is likely to underestimate large differences. I thought it might be interesting to see if any of these are sex-based differences, but all of these fish are male.
+
+```{r}
+summary_iid <- res$summary.random$transmitter %>% 
+  mutate(resp_0.025quant = exp(`0.025quant`),
+         resp_0.5quant = exp(`0.5quant`),
+         resp_0.975quant = exp(`0.975quant`))
+
+ggplot(data = summary_iid) +
+  geom_pointrange(aes(x = ID, y = `0.5quant`,
+                      ymin = `0.025quant`, ymax = `0.975quant`)) +
+  labs(x = 'Transmitter', y = 'Effect (link scale)') +
+  theme_minimal()
+
+ggplot(data = summary_iid) +
+  geom_pointrange(aes(x = ID, y = resp_0.5quant,
+                      ymin = resp_0.025quant, ymax = resp_0.975quant)) +
+  labs(x = 'Transmitter', y = 'Effect (response scale)') +
+  theme_minimal()
+```
+
+Next is the interesting part: spatial autocorrelation! It looks like there are some hot spots not explained by sediment type or transmitter just north of the Brookview Bridge and near the southern end of the array. Note the scale of the effect -- up to over 600 more positions in each grid cell! That far outweighs the 1-2 due to bottom type and is greater than the 2-150 due to differences between fish.
+
+```{r}
+mod_data <- mod_data %>% 
+  mutate(re_spat = res$summary.random$id[mod_data$id, "0.5quant"],
+         resp_re_spat = exp(re_spat))
+
+ggplot() +
+  geom_sf(data = distinct(mod_data, id, .keep_all = T),
+          aes(fill = re_spat), color = NA) +
+  geom_sf(data = mh_shape, fill = NA, size = 1, color = 'black') +
+  labs(fill = 'Effect\n(link)') +
+  scale_fill_viridis_c() +
+  theme_minimal()
+
+ggplot() +
+  geom_sf(data = distinct(mod_data, id, .keep_all = T),
+          aes(fill = resp_re_spat), color = NA) +
+  geom_sf(data = mh_shape, fill = NA, size = 1, color = 'black') +
+  labs(fill = 'Effect\n(response)') +
+  scale_fill_viridis_c() +
+  theme_minimal()
+```
+
+This really looks like what I imagine the depth to look like in the area, especially when viewed on the log-link scale. A few things are neat to me with this:
+
+1)  We've accidentally used Atlantic sturgeon to create an index of depth in Marshyhope Creek!
+2)  It displays in a nice, visual manner that a depth covariate would be very informative -- and that our current model isn't that great.
+3)  We now know that bottom type really isn't very informative in terms of the number of positions in a grid cell.
+
+### Predictions
+
+Lastly, we'll run some predictions.
+
+```{r}
+mod_data$pred <- res$summary.fitted.values[, "0.5quant"]
+mod_data$lci <- res$summary.fitted.values[, "0.025quant"]
+mod_data$uci <- res$summary.fitted.values[, "0.975quant"]
+
+
+preds <- mod_data %>% 
+  # Scale predictions by cell size
+  mutate(pred = pred * area,
+         lci = lci * area,
+         uci = uci * area) %>% 
+  # sum predictions within cells
+  group_by(id) %>% 
+  summarise(s_pred = sum(pred),
+            s_lci = sum(lci),
+            s_uci = sum(uci))
+
+
+pred_plot <- ggplot(data = preds) +
+  geom_sf(aes(fill = s_pred), color = NA, show.legend = F) +
+  scale_fill_viridis_c(limits = c(0, 150)) +
+  theme_minimal()+
+  theme(plot.margin = margin(0, 0, 0, 0))
+  
+lci_plot <- ggplot(data = preds) +
+  geom_sf(aes(fill = s_lci), color = NA) +
+  labs(fill = 'Prediction', subtitle = 'LCI') +
+  scale_fill_viridis_c(limits = c(0, 150)) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        plot.margin = margin(0, 0, 0, 0))
+  
+uci_plot <- ggplot(data = preds) +
+  geom_sf(aes(fill = s_uci), color = NA) +
+  labs(fill = 'Prediction', subtitle = 'UCI') +
+  scale_fill_viridis_c(limits = c(0, 150)) +
+  theme_minimal() +
+  theme(axis.text = element_blank(),
+        plot.margin = margin(0, 0, 0, 0))
+
+pred_plot + (lci_plot / uci_plot) +
+  plot_layout(widths = c(2.2,1), guides = 'collect')
+```
+
+As before, we can see that the predicted positions occur along what I imagine to be the creek channel with concentrations above Brookview Bridge and in the southern area of the array. I think it's interesting to note that while the spatial random effect predicted up to 600 detections in certain areas, our maximum predicted number of positions in a grid cell using the full model is 116 (CI: 95-141). I think this reflects what winds up being a mostly-negative influence of many of the bottom types, mainly mud.
+
+## Conclusions
+
+In a spatial point process model utilizing a fixed effect of bottom type and random effects of space and transmitter following the algorithm outlined in @moraga2020, we have predicted the combined number of positions of various fish within a 20m x 20m grid in the Brookview area of Marshyhope Creek. Total predicted positions in each grid cell ranged from 0 - 117 (CIs: 0 - 0; 10 - 141) with a median of 3 (CI: 1 - 5). The highest number of positions seem to be aligned with where we expect the greatest depths to be (in the middle of the creek), with concentrations located above Brookview Bridge and at the southernmost bend in our array.
+
+Mud had significantly fewer positions than all other bottom types. Other bottom types did not vary significantly from each other and, with the exception of sandy mud, they were not significant predictors. Sandy mus had a small positive association with the number of positions predicted in a given grid cell.
+
+The spatially-structured random effect, which represents unknown spatially-autocorrelated variables, could create a difference of more than 600 positions per fish in a given 20m x 20m cell. As the highest intensity mirrors the channel of the Marshyhope, this is likely to be due to association with depth. Differences associated with individual fish also cause differences of up to 150 positions per cell, though this was centered around 25 or so.
+
+Compared to the random effects of spatial autocorrelation and individual fish, which were on the order of tens to hundreds of detections, the fixed effect of bottom type, which ranged from 0-2 positions, did not come across as useful. As is clear from the spatial random effect, bottom type is not a dominant -- nor even informative -- predictor of Atlantic sturgeon positions in the VPS.
+
+A crucial next step for informative modeling of Atlantic sturgeon detections would be to collect bathymetry data in this area of the Marshyhope in at least a 20m x 20m scale. Additionally, the dominant bottom type within a 400 m^2^ grid cell was considered to be the only bottom type in that cell; this could possibly skew results. To address this, we can use a stochastic partial differential equation (SPDE) approach -- this is just a fancy way to treat things as continuous rather than broken up into a grid.
+
+## References
