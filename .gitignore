@@ -38,5 +38,28 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
+# R notebooks
+*.nb.html
+
 # Data files
 *.gz
+*.zip
+
+# BIG files
+*.gdb
+
+# MS Office
+*.doc
+*.docx
+*.xls
+*.xlsx
+
+# Google Earth
+*.kml
+*.kmz
+
+# Misc.
+vps.png
+vps_kde.png
+sturgeon_detections.csv
+habitat_positions.png
