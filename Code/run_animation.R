@@ -187,4 +187,50 @@ job::job({
   )
 })
 
+# Gif for GitHub README
+job::job({
+  anim_save(
+    'figures/Nanticoke_2020_inset.gif',
 
+    animate(
+      ggplot() +
+        geom_sf(data = fburg, fill = 'yellow') +
+        geom_sf(data = sford, fill = 'yellow') +
+        geom_sf(data = nan) +
+        geom_sf(data = rkm_lines, color = 'blue', lwd = 1) +
+        geom_sf(data = agg_dets[agg_dets$year == 2020,],
+                aes(size = N, group = stationname))  +
+        coord_sf(xlim = c(-75.96, -75.54), ylim = c(38.247, 38.709), expand = F) +
+        geom_text(data = river_labels, aes(x = long, y = lat, label = labs),
+                  check_overlap = T) +
+        geom_label_repel(data = city_labels, aes(x = long, y = lat, label = labs),
+                         # nudge_x = c(-0.04, 0.07, 0),
+                         # nudge_y = c(0.01, -0.01, -0.035),
+                         nudge_x = c(-0.04, -0.08, 0),
+                         nudge_y = c(0.04, 0, -0.035),
+                         label.size = 0, label.padding = unit(0.1, 'line')) +
+        labs(x = NULL, y = NULL, size = 'Number of\ntagged sturgeon') +
+        theme_bw() +
+        theme(legend.position = c(0.15, 0.47),
+              legend.margin = margin(0, 0, 0, 0),
+              legend.background = element_blank(),
+              axis.text.y = element_text(angle = 45),
+              plot.margin = margin(1, 1, 1, 1)) +
+        scale_size_continuous(breaks = c(1, 2, 5, 7)) +
+        annotation_custom(inset, -75.71, -75.54, 38.26, 38.47) +
+
+
+        transition_time(date, range = as.Date(c('2020-08-01', '2020-10-31'))) +
+        labs(title = '{frame_time}'),
+      nframes = 91,
+      fps = 3,
+      renderer = gifski_renderer(),
+      device = 'ragg_png',
+      res = 150,
+      width = 1246,
+      height = 1650,
+      scaling = 1.7
+
+    )
+  )
+})
