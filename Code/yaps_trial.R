@@ -3,22 +3,8 @@ library(data.table); library(sf); library(yaps)
 vue <- data.table::fread('data/raw/vueexport_2020_timecorrected.csv',
                          fill=TRUE, tz = '')
 
-prepDetections_gsub <- function(raw_dat, type){
-  detections <- data.table::data.table()
-  if (type == "vemco_vue"){
-    detections[, ts:=as.POSIXct(raw_dat$'Date and Time (UTC)', tz="UTC")]
-    detections[, tag:=as.numeric(gsub('.*-', '', raw_dat$Transmitter))]
-    detections[, epo:=as.numeric(ts)]
-    detections[, frac:= as.numeric(gsub('.*\\.', '', raw_dat$"Date and Time (UTC)"))/1000]
-    detections[, serial:=as.numeric(gsub('.*-', '', raw_dat$Receiver))]
-  }
-  detections[]
-  return(detections)
-}
 
-
-
-detections <- prepDetections_gsub(vue, 'vemco_vue')
+detections <- prepDetections(vue, 'vemco_vue')
 detections[is.na(frac), frac := 0]
 
 # Remove detections after VR2ARs started to be pulled
