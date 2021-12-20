@@ -226,10 +226,10 @@ job::job({
       fps = 3,
       renderer = gifski_renderer(),
       device = 'ragg_png',
-      res = 150,
-      width = 1246,
-      height = 1650,
-      scaling = 1.7
+      res = 300,
+      width = 624,
+      height = 826,
+      scaling = 0.47
 
     )
   )
