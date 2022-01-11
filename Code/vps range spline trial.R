@@ -5,7 +5,8 @@ vps <- list.files('p:/obrien/biotelemetry/marshyhope/vps 2021/files',
                   pattern = '1028.*.csv', full.names = T)
 
 vps <- lapply(vps, fread,
-              col.names = function(.) tolower(gsub('[) (]', '', .)), fill = T)
+              select = c('Date and Time (UTC)', 'Receiver', 'Transmitter'),
+              col.names = function(.) tolower(gsub('and|UTC|[) ()]', '', .)), fill = T)
 
 vps <- rbindlist(vps)
 
@@ -49,22 +50,22 @@ key[, c('starttime', 'endtime') := lapply(.SD,
 setkey(key, device, starttime, endtime)
 
 
-vps <- vps[, .(dateandtimeutc, receiver, transmitter)]
-vps[, dummy_time := dateandtimeutc]
+
+vps[, dummy_time := datetime]
 
 # Join receiver station name and location
-vps_range <- foverlaps(vps, key, by.x = c('receiver', 'dateandtimeutc', 'dummy_time'), nomatch = 0)
+vps_range <- foverlaps(vps, key, by.x = c('receiver', 'datetime', 'dummy_time'), nomatch = 0)
 vps_range <- vps_range[, -c('devicedepth', 'starttime', 'endtime')]
 
 # Join transmitter station name and location
 vps_range <- foverlaps(vps_range, key,
-                       by.x = c('transmitter', 'dateandtimeutc', 'dummy_time'),
+                       by.x = c('transmitter', 'datetime', 'dummy_time'),
                        nomatch = 0)
 vps_range <- vps_range[, -c('devicedepth', 'starttime', 'endtime', 'dummy_time')]
 
 setnames(vps_range,
-         c('name', 'i.name', 'latitude', 'longitude', 'i.latitude', 'i.longitude', 'dateandtimeutc'),
-         c('station_from', 'station_to', 'lat_from', 'lon_from', 'lat_to', 'lon_to', 'datetime'))
+         c('name', 'i.name', 'latitude', 'longitude', 'i.latitude', 'i.longitude'),
+         c('station_from', 'station_to', 'lat_from', 'lon_from', 'lat_to', 'lon_to'))
 
 
 vps_range[, day := lubridate::floor_date(datetime, 'day')]
