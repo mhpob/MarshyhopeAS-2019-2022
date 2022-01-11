@@ -38,7 +38,7 @@ mh_shape <- st_read('data/derived/mhclip_base2020vpsfish.gpkg') %>%
   st_zm()
 
 ## Import habitat polygons that intersect with the mh_shape polygon
-habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
+habitat <- st_read('data/raw/geo/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
                    layer = 'RiverBed_Habitat_Polygons_CMECS_SC_01132016',
                    wkt_filter = st_as_text(st_geometry(mh_shape))) %>%
   
