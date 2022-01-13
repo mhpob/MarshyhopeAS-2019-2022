@@ -47,6 +47,7 @@ vignettes/*.pdf
 
 # BIG files
 *.gdb
+/model output/
 
 # MS Office
 *.doc
