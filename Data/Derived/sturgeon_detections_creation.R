@@ -1,3 +1,4 @@
+# Last updated 2022-01-18
 library(parallel); library(data.table)
 
 # Import
@@ -10,15 +11,23 @@ clusterEvalQ(cl, library(data.table))
 
 
 ## Pull in detections
-detections <- list.files(file.path('p:/obrien/biotelemetry/detections/dnr',
-                                   c('marshyhope', 'nanticoke')),
-                         pattern = '^VR.*.csv', full.names = T)
+detections <- c(
+  list.files(file.path('p:/obrien/biotelemetry/detections/dnr',
+                       c('marshyhope', 'nanticoke')),
+             pattern = '^VR.*_201.*.csv', full.names = T),
+  list.files(file.path('p:/obrien/biotelemetry/detections/dnr',
+                       c('marshyhope', 'nanticoke')),
+             pattern = 'Export_2020.*.csv', full.names = T),
+  list.files(file.path('p:/obrien/biotelemetry/detections/dnr',
+                       c('marshyhope', 'nanticoke')),
+             pattern = 'All 2021.csv', full.names = T)
+)
 detections <- parLapply(
   cl, detections,
   fread, fill = T,
   select = c('Date and Time (UTC)', 'Receiver', 'Transmitter',
              'Station Name', 'Latitude', 'Longitude'),
-  col.names = function(.) tolower(gsub('[) (]', '', .))
+  col.names = function(.) tolower(gsub('and|UTC|[) (]', '', .))
 )
 
 ## Close cluster
@@ -30,32 +39,21 @@ detections <- detections[sapply(detections, nrow) > 0]
 detections <- rbindlist(detections, fill = T)
 
 # Select sturgeon tagged as of 2021-10
-detections <- detections[transmitter %in%
-  # MDNR transmitters
-  paste0('A69-9001-',
-         c(# MDNR transmitters
-           seq(21063, 21072, 1),
-           seq(23900, 23904, 1),
-           seq(26350, 26354, 1),
-           seq(27543, 27547, 1),
-           seq(18009, 18010, 1),
-           seq(18977, 18985, 1),
-           # DNREC transmitters
-           10157,
-           seq(21060, 21062, 1)))]
+deployed_tags <- fread('data/raw/embargo/sturgeon capture data.csv')
+detections <- detections[transmitter %in% deployed_tags$TransmitterNumber]
 
 
 
 
 # General manipulation
 ## Add local date
-detections[, date.local := dateandtimeutc]
+detections[, date.local := datetime]
 setattr(detections$date.local, 'tzone', 'America/New_York')
 
 
 ## Rename columns and reorder
 setnames(detections,
-         c('dateandtimeutc', 'stationname', 'latitude', 'longitude'),
+         c('datetime', 'stationname', 'latitude', 'longitude'),
          c('date.utc', 'station', 'lat', 'long'))
 setorder(detections, date.utc)
 
