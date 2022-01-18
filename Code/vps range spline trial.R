@@ -76,6 +76,8 @@ successes <- vps_range[, {
   .SD[d, on = c('station_to', 'station_from')]
   },
                        by = c('day')]
+successes <- unique(successes, by = c('day', 'station_from', 'lat_from', 'lon_from',
+                         'station_to', 'lat_to', 'lon_to', 'N'))
 
 
 # Calculate total number transmissions for each receiver (times a receiver heard its own transmitter)
@@ -101,6 +103,36 @@ fwrite(model_data, 'model output/model_data.csv')
 #########################
 library(data.table)
 model_data <- fread('model output/model_data.csv')
+model_data[, ':='(day_f = as.factor(day),
+                  station_to = as.factor(station_to))]
+
+
+library(mgcv)
+library(ggplot2)
+
+# job::job({
+#   m2 <- bam(cbind(N, trials - N) ~ te(lat_from, lon_from, by = station_to, bs = 'cr'),
+#             data = model_data,
+#             family = binomial(),
+#             discrete = T)
+#   saveRDS(m2, 'model output/from_by_stationto.rds')
+# }, import = c(model_data), packages = 'mgcv')
+m2 <- readRDS('model output/from_by_stationto.rds')
+
+job::job({
+  m_GI <- bam(cbind(N, trials - N) ~
+                station_to +
+                te(lat_from, lon_from, bs = 'cr', m = 2) +
+                te(lat_from, lon_from, by = station_to, bs = 'cr', m = 1),
+              data = model_data,
+              family = binomial(),
+              discrete = T)
+  saveRDS(m_GI, 'model output/GI_from_by_stationto.RDS')
+}, import = c(model_data), packages = 'mgcv')
+
+# m_GI <- readRDS('model output/GI_from_by_stationto.RDS')
+
+
 
 library(sf)
 nan <- st_read('data/raw/geo/NHD_H_0208_HU4_GDB.gdb',
@@ -120,50 +152,6 @@ seg <- st_crop(st_transform(nan, 4326),
 plot(st_geometry(seg))
 
 
-
-
-
-
-
-library(mgcv)
-
-# job::job({
-#   m2 <- bam(cbind(N, trials) ~ te(lat_from, lon_from, by = station_to, bs = 'cr'),
-#             data = model_data,
-#             family = binomial(),
-#             discrete = T)
-# }, import = c(model_data), packages = 'mgcv')
-m2 <- readRDS('model output/from_by_stationto.rds')
-
-# job::job({
-#   m_GI <- bam(cbind(N, trials) ~
-#                 te(lat_from, lon_from, bs = 'cr', m = 2) +
-#                 te(lat_from, lon_from, by = station_to, bs = 'cr', m = 1),
-#               data = model_data,
-#               family = binomial(),
-#               discrete = T)
-# }, import = c(model_data), packages = 'mgcv')
-
-# saveRDS(m_GI, 'model output/GI_from_by_stationto.RDS')
-m_GI <- readRDS('model output/GI_from_by_stationto.RDS')
-
-
-
-# job::job({
-#   m_bystto_rDate <- bam(cbind(N, trials) ~
-#                           station_to +
-#                           te(lat_from, lon_from, by = station_to, bs = 'cr') +
-#                           s(day_f, bs = 're'),
-#                         data = model_data,
-#                         family = binomial(),
-#                         discrete = T)
-# }, import = c(model_data), packages = 'mgcv')
-#
-# saveRDS(m_bystto_rDate, 'model output/by_stationto_rDate.RDS')
-
-m_bystto_rDate <- readRDS('model output/by_stationto_rDate.RDS')
-
-
 k <- st_make_grid(seg, n = c(100, 100))
 k <- k[st_covered_by(k, seg, sparse = F)]
 kk <- st_coordinates(st_centroid(k))
@@ -173,12 +161,14 @@ setnames(pred, c('lon_from', 'lat_from'))
 
 
 
-dumb_fun <- function(station){
-  pred[,':='(station_to = station,
-             day_f = '2021-08-20')]
+# dumb_fun <- function(station, day){
+  pred[,':='(station_to = '3e')]
 
-  pred[, preds := predict(m_bystto_rDate, newdata = pred, type = 'response',
-                          exclude = 's(day_f)',
+  pred[, preds := predict(m_GI, newdata = pred,
+                          type = 'response',
+                          terms = c('station_to3e',
+                                    'te(lat_from,lon_from)',
+                                    'te(lat_from,lon_from):station_to3e'),
                           newdata.guaranteed = TRUE)]
 
   pred[, geom := st_geometry(k)]
@@ -187,19 +177,21 @@ dumb_fun <- function(station){
     geom_sf(data = pred, aes(geometry = geom, fill = preds), color = NA) +
     geom_point(data = unique(model_data, by = c('lat_from', 'lon_from')),
                aes(x = lon_from, y = lat_from,
-                   shape = station_from == station,
-                   size = station_from == station,
-                   color = station_from == station),
+                   shape = station_from == '1w',
+                   size = station_from == '1w',
+                   color = station_from == '1w'),
                show.legend = F) +
     scale_fill_viridis_c()
-}
+# }
 
-dumb_fun('3e')
-
-
+dumb_fun('2w', '2021-10-26')
 
 
-md <- st_as_sf(model_data[!is.na(lon_from)], coords = c('lon_from', 'lat_from'), crs = 4326)
+
+md <- model_data[!is.na(lon_from)]
+md <- unique(md, by = c('day', 'station_from', 'station_to'))
+
+md <- st_as_sf(md, coords = c('lon_from', 'lat_from'), crs = 4326)
 md <- st_transform(md, 32618)
 setDT(md)
 md[, ':='(east_from = st_coordinates(geometry)[,1],
@@ -215,14 +207,14 @@ bound <- st_buffer(seg_proj, 20)
 # bound <- list(list(east_from = bound[,1], north_from = bound[,2]))
 
 ## grid for interp
-grd <- st_make_grid(bound, n = c(20, 20), what = 'centers')
-grd2 <- grd[st_within(grd, bound, sparse = F)]
+grd <- st_make_grid(seg_proj, n = c(20, 20), what = 'centers')
+grd2 <- grd[st_within(grd, seg_proj, sparse = F)]
 
 bound <-  st_buffer(seg_proj, 50)
 
 
 plot(grd)
-plot(st_geometry(bound), add = T)
+plot(st_geometry(seg_proj), add = T)
 plot(grd2, add = T, col = 'red')
 plot(unique(md, by = 'north_from')[, geometry], add = T, col = 'blue')
 
@@ -235,13 +227,15 @@ setnames(grd2, c('east_from', 'north_from'))
 
 
 job::job({
-  hmmm <- bam(cbind(N, trials) ~
+  mod_soap <- bam(cbind(N, trials - N) ~
                 station_to +
-                s(east_from, north_from, by = station_to,
-                  bs = 'so', xt = list(bnd = bound), k = 60) +
-                s(day_f, bs = 're'),
-              data = md,
-              family = binomial(), knots = grd2)
+                  s(east_from, north_from, bs = 'so',
+                    xt = list(bnd = bound), k = 60) +
+                  s(east_from, north_from, by = station_to,
+                    bs = 'so', xt = list(bnd = bound), k = 60),
+                data = md,
+                family = binomial(), knots = grd2)
+  saveRDS(mod_soap, 'model output/mod_soap.RDS')
 }, import = c(md, bound, grd2), packages = 'mgcv')
 
 # troubleshooting....
@@ -258,10 +252,11 @@ pred <- data.table(kk)
 setnames(pred, c('east_from', 'north_from'))
 
 
-  pred[,':='(station_to = '3e',
+  pred[,':='(station_to = '1e',
              day_f = '2021-08-20')]
 
-  pred[, preds := predict(hmmm, newdata = pred, type = 'response',
+  pred[, preds := predict(mod_soap, newdata = pred, type = 'response',
+                          exclude = 'station_to',
                           newdata.guaranteed = TRUE)]
 
   pred[, geom := st_geometry(k)]
