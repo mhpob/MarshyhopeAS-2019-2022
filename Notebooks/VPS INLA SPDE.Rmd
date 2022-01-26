@@ -32,6 +32,7 @@ fish <- positions %>%
   filter(grepl('^\\d', transmitter))
 fish <- fish %>% 
   filter(hpe <= quantile(fish$hpe, 0.9, na.rm = T)) %>%
+  mutate(transmitter = as.factor(transmitter)) %>% 
   st_as_sf(coords = c('lon', 'lat'),
            crs = 4326,
            remove = F)
@@ -41,7 +42,7 @@ mh_shape <- st_read('data/derived/mhclip_base2020vpsfish.gpkg') %>%
   st_zm()
 
 ## Import habitat polygons that intersect with the mh_shape polygon
-habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
+habitat <- st_read('data/raw/geo/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
                    layer = 'RiverBed_Habitat_Polygons_CMECS_SC_01132016',
                    wkt_filter = st_as_text(st_geometry(mh_shape))) %>%
   
@@ -58,7 +59,8 @@ habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticok
                                    'Unclassified'))) %>% 
   # Classify anything in the Marshyhope not classified in habitat as "Unclassified"
   st_intersection(mh_shape) %>% 
-  select(Group) %>% 
+  select(Group) 
+habitat <- habitat %>% 
   rbind(
     st_sym_difference(st_union(habitat), mh_shape) %>% 
       st_as_sf() %>% 
@@ -140,7 +142,7 @@ According to Chapter 4 of @krainski2018:
 
 > The SPDE approach for point pattern analysis defines the model at the nodes of the mesh. To fit the log-Cox point process model, these points are considered as integration points. The method in Simpson et al. ([2016](https://becarioprecario.bitbucket.io/spde-gitbook/ch-lcox.html#ref-simpsonetal:2016)) defines the expected number of events to be proportional to the area around the node (the areas of the polygons in the dual mesh). This means that at the nodes of the mesh with larger triangles, there are also larger expected values.
 
-So, basically, (I think) that this means that we need to find what the area around each vertex of the mesh is, and then what portion of that area is inside of the Marshyhope. Polygons in the mesh will be weighted by this proportion. The vertices of the mesh are stored in `mesh$loc`. We'll turn that into an `sf` object and use Voronoi tessellation to create polygons around the vertices. Voronoi tessellation draws polygons around each point so that the boundaries of the polygons are halfway between the two nearest points.
+So, basically, (I think) that this means that we need to find what the area around each vertex of the mesh is, and then what portion of that area is inside of the Marshyhope. Polygons in the mesh will be weighted by this proportion. The vertices of the mesh are stored in `mesh$loc`. We'll turn that into an `sf` object and use Voronoi tessellation to create polygons around the vertices. Voronoi tessellation draws polygons around each point so that the boundaries of the polygons are halfway between the two nearest points. I've found that many `sf` operations reorder the data, which means that the weights become associated with the wrong polygons. Because of this, I'm going to introduce an "ID" column and make sure that the IDs match up in every step.
 
 ```{r}
 mesh_sf <- mesh$loc[, 1:2] %>% 
@@ -148,11 +150,12 @@ mesh_sf <- mesh$loc[, 1:2] %>%
   data.frame() %>% 
   st_as_sf(coords = c('X1', 'X2'),
            crs = st_crs(habitat)) %>% 
-  
-    # combine separate POINTs into one MULTIPOINT
-  st_combine()
+  # add an ID for each vertex (useful to match predictions to the right point)
+  mutate(id = 1:mesh$n)
 
 mesh_vor <- mesh_sf %>% 
+  # combine separate POINTs into one MULTIPOINT
+  st_combine() %>%
   # Conduct Voronoi tessellation
   st_voronoi() %>%
   st_collection_extract()
@@ -164,32 +167,39 @@ This kind of goes off into infinity somewhere, so we're going to use the boundar
 
 ```{r}
 mesh_vor <- mesh_sf %>%
+  # make the boundary of mesh_sf
+  st_combine() %>%
   st_convex_hull() %>% 
-  st_intersection(mesh_vor, .)
-
-plot(mesh_vor)
-plot(mesh_sf, add = T, cex = 0.5, col = 'blue')
+  # crop by the boundary of mesh_sf
+  st_intersection(mesh_vor, .) %>% 
+  # join back in the vertex IDs
+  st_as_sf() %>% 
+  st_join(mesh_sf)
+  
+plot(st_geometry(mesh_vor))
+plot(st_geometry(mesh_sf), add = T, cex = 0.5, col = 'blue')
 ```
 
-You can see there that the boundary of each polygon is halfway between its two nearest points. Now, we need to calculate the area of each polygon that falls within the Marshyhope.
+You can see there that the boundary of each polygon is halfway between its two nearest points. Now, we need to calculate the area of each polygon that falls within the Marshyhope to use as weights.
 
 ```{r}
-plot(mesh_vor)
+plot(st_geometry(mesh_vor))
 plot(st_geometry(mh_shape), add = T, border = 'red')
 
 mesh_vor <- mesh_vor %>%
-  st_as_sf() %>% 
-  mutate(wt = ifelse(
-    # If the polygon touches the Marshyhope shape...
-    st_intersects(., mh_shape, sparse = F),
-    # ...calculate the area of the polygon within the Marshyhope shape...
-    st_area(st_intersection(., st_geometry(mh_shape))),
-    # Else, the area is zero.
-                     0),
-    
-    # Convert all of those areas from a "units" to a "numeric" class
-    wt = as.numeric(wt))
-
+  # Crop the voronoi polygons using the Marshyhope
+  st_intersection(st_geometry(mh_shape)) %>% 
+  # calculate the area within the cropped polygons (area in the Marshyhope)
+  mutate(wt = as.numeric(st_area(.))) %>% 
+  
+  # Merge back in the weights according to the polygon ID
+  as.data.frame() %>% 
+  select(id, wt) %>% 
+  merge(mesh_vor, ., all = T) %>% 
+  
+  # Change NAs (polygons outside of the Marshyhope) to 0 weight
+  mutate(wt = ifelse(is.na(wt), 0, wt))
+  
 ggplot() +
   geom_sf(data = mesh_vor, aes(fill = wt)) +
   geom_sf(data = mh_shape, fill = NA, color = 'white') +
@@ -213,6 +223,9 @@ This makes a vector of zeroes and ones, where the number of zeroes is equal to t
 > The exposure vector can be defined as:
 
 ```{r}
+mesh_vor <- mesh_vor %>% 
+  arrange(id)
+
 e.pp <- c(mesh_vor$wt, rep(0, nrow(fish))) 
 ```
 
@@ -225,7 +238,7 @@ INLA is kind of weird in the way that if we want to make predictions, we need to
 > The projection matrix is defined in two steps. For the integration points this is just a diagonal matrix because these locations are just the mesh vertices:
 
 ```{r}
-imat <- Diagonal(mesh$n, rep(mesh$n))
+imat <- Diagonal(mesh$n, rep(1, mesh$n))
 ```
 
 > For the observed points, another projection matrix is defined:
@@ -252,8 +265,8 @@ stk.pp <- inla.stack(
               e = e.pp), # offset
   A = list(1, A.pp), # projector matrix
   effects = list(
-    list(b0 = rep(1, mesh$n + nrow(fish))), # intercept
-    list(i = 1:mesh$n) # spatial effect
+    list(intercept = rep(1, mesh$n + nrow(fish))), # intercept
+    list(vertex_id = 1:mesh$n) # spatial effect
   ),
   tag = 'pp'
 )
@@ -262,7 +275,7 @@ stk.pp <- inla.stack(
 ### Fit the model
 
 ```{r}
-pp.res <- inla(y ~ 0 + b0 + f(i, model = spde), 
+pp.res <- inla(y ~ 0 + intercept + f(vertex_id, model = spde), 
                family = 'poisson',
                data = inla.stack.data(stk.pp), 
                control.predictor = list(A = inla.stack.A(stk.pp),
@@ -270,6 +283,123 @@ pp.res <- inla(y ~ 0 + b0 + f(i, model = spde),
                E = inla.stack.data(stk.pp)$e)
 ```
 
+### Results
+
+```{r}
+summary(pp.res)
+```
+
+#### Spatial effect
+
 ## Now with covariates
 
 > The covariate values need to be included in the data and the model for inference. These values must be available at the point pattern locations and at the mesh nodes.
+
+So, I need to find the bottom type for all of the mesh vertices. Bottom type data is already within the fish detection data, so that's good to go. The mesh vertices are currently contained in `mesh_sf`, which is a multipoint simple features collection. That doesn't really matter, except that we first need to convert it to a simple features object, then extract all of the points. Note that I need to specify `largest = T` in the spatial join; I believe this is so that points that fall on a line separating two polygons (within a tolerance) will be assigned the bottom type that it overlaps most with.
+
+```{r}
+mesh_hab <- mesh_sf %>% 
+  st_as_sf %>% 
+  st_cast('POINT') %>% 
+  st_join(habitat, join = st_intersects, largest = T)
+```
+
+### Weights and projector grid
+
+The response (`y`), exposure (`e`), projection matrix of observed points (`lmat`), projection matrix of integration points (`imat`), and the entire projection matrix (`A`) are the same as before -- no need to do anything differently for the model with a covariate.
+
+### Stack
+
+There seem to be two differences when specifying the stack, and they both show up in the call to effects:
+
+1.  The intercept can just be listed as "1", rather than repeating it over all observations. I think this may possibly be because it assumes that 1 should be repeated when we...
+
+2.  Specify the bottom type covariate, which has values for all of the mesh vertices (we did this when making `mesh_hab`) and fish observations. Note that NA seems to qualify as an "observation". The model will fit, anyway.
+
+```{r}
+stk.pp.c <- inla.stack(
+  data = list(y = y.pp, e = e.pp), 
+  A = list(1, A.pp), 
+  effects = list(
+    list(intercept = 1,
+         bottom_type = c(mesh_hab$Group, fish$Group)
+    ), 
+    list(vertex_id = 1:mesh$n)
+  ),
+  tag = 'pp.c')
+```
+
+### Fit the model
+
+```{r}
+pp.c.res <- inla(y ~ 0 + intercept + bottom_type + f(vertex_id, model = spde),
+                 family = 'poisson',
+                 data = inla.stack.data(stk.pp.c), 
+                 control.predictor = list(A = inla.stack.A(stk.pp.c),
+                                          compute = T), 
+                 E = inla.stack.data(stk.pp.c)$e)
+```
+
+### Results
+
+```{r}
+summary(pp.c.res)
+```
+
+#### Fixed effects
+
+```{r}
+list_marginals_fixed <- pp.c.res$marginals.fixed
+
+marginals <- data.frame(do.call(rbind, list_marginals_fixed))
+marginals$group <- rep(names(list_marginals_fixed),
+                       times = sapply(list_marginals_fixed, nrow))
+
+
+ggplot(data = marginals,
+       aes(x = x, y = y)) +
+  geom_line() +
+  geom_vline(xintercept = 0) +
+  labs(x = expression(beta[1]), y = "Density") +
+  facet_wrap(~ group, scales = 'free') +
+  theme_minimal()
+```
+
+```{r}
+summary_fixed <- pp.c.res$summary.fixed %>% 
+  mutate(group = gsub('bottom_type', '', row.names(.)),
+         group = factor(group, levels = c('Sandy_Gravel', 'Sand', 'Muddy_Sand',
+                                          'Sandy_Clay', 'Sandy_Mud', 'Mud',
+                                          'Unclassified'),
+                        ordered = T))
+
+ggplot(data = filter(summary_fixed, !is.na(group))) +
+  geom_pointrange(aes(x = group, y = `0.5quant`,
+                      ymin = `0.025quant`, ymax = `0.975quant`)) +
+  labs(x = 'Bottom type', y = 'Effect (link scale)') +
+  theme_minimal()
+```
+
+#### Spatial effect
+
+```{r}
+test <- st_cast(st_as_sf(mesh_sf), 'POINT') %>% 
+  mutate(re_spat = pp.c.res$summary.random$vertex_id[, "0.5quant"],
+         resp_re_spat = exp(re_spat))
+
+ggplot() +
+  geom_sf(data = test,
+          aes(color = re_spat)) +
+  geom_sf(data = mh_shape, fill = NA, size = 1, color = 'black') +
+  labs(fill = 'Effect\n(link)') +
+  scale_fill_viridis_c() +
+  theme_minimal()
+
+ggplot() +
+  geom_sf(data = distinct(mod_data, id, .keep_all = T),
+          aes(fill = resp_re_spat), color = NA) +
+  geom_sf(data = mh_shape, fill = NA, size = 1, color = 'black') +
+  labs(fill = 'Effect\n(response)') +
+  scale_fill_viridis_c() +
+  theme_minimal()
+```

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <title>Delaware Boundaries</title>
+                <onlink>https://enterprise.firstmap.delaware.gov/arcgis/rest/services/Boundaries/DE_Boundaries/FeatureServer</onlink>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>This service is comprised of multiple layers. The State and County Boundaries layer are bounding lines relating to the political boundary delineation for the State of Delaware New Castle, Kent, and Sussex Counties have come to an agreement on where approximately the county boundaries should fall. The Kent and Sussex County Boundary has monuments which set the boundary line. These monuments have been GPS and points representing these monuments are also included in this service. The municipal boundaries layer is maintained by the Office of State Planning and Coordination. This data set is a central repository of GIS polygons representing the boundaries of incorporated municipalities in the state of Delaware. The Communities layer is comprised of data obtained from each county and merged into a seamless dataset. The polygons represent unincorporated areas within the state such as sub-divisions, neighborhoods and developments. </abstract>
+            <purpose>This service is comprised of features that represent political boundaries including Municipalities and Municipal Annexations.</purpose>
+        </descript>
+        <keywords>
+            <theme>
+                <themekt>None</themekt>
+                <themekey>County</themekey>
+                <themekey>Boundary</themekey>
+                <themekey>Community</themekey>
+                <themekey>Monuments</themekey>
+                <themekey>Municipality</themekey>
+                <themekey>Towns.</themekey>
+                <themekey>FirstMap</themekey>
+            </theme>
+        </keywords>
+        <accconst>None</accconst>
+        <useconst>The
+State of Delaware makes no warranty or representation, expressed or implied,
+with respect to the quality, content, accuracy, completeness, currency, or
+non-infringement of proprietary rights, of any of the GIS or other data or
+information, or any other materials and items, that are displayed or made
+available for download from this site. All such data, information, items and
+materials (collectively, the “FirstMap Data”) are provided &amp;quot;as is&amp;quot;
+and users are fully and solely responsible for any consequences of use.
+FirstMap Data may have been created from a variety of sources, including
+sources beyond the control of the State of Delaware, and are subject to change
+without notice. To the extent you use, apply, add to, modify or implement this information
+in your own information system or other setting, or otherwise for your own
+purposes, you do so at your own risk. In no event shall the State of Delaware
+or its agencies, officers, employees, agents, or representatives be liable for
+any damages of any kind or nature whatsoever including, but not limited to,
+direct, indirect, special, punitive, incidental, exemplary or consequential
+damages arising from your downloading, modifying, sharing, distributing, or
+using of FirstMap Data even if notified of the possibility of such
+damages.  Further, the State of Delaware
+does not accept liability for any damages or misrepresentation caused by
+inaccuracies in the FirstMap Data or as a result of changes to the FirstMap
+Data, nor is there responsibility assumed to maintain the FirstMap Data in any
+manner or form.</useconst>
+    </idinfo>
+    <metainfo>
+        <metd>20200831</metd>
+        <metc>
+            <cntinfo>
+                <!--no contact person or organization name available-->
+            </cntinfo>
+        </metc>
+        <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+        <mettc>local time</mettc>
+    </metainfo>
+</metadata>

@@ -47,19 +47,22 @@ vignettes/*.pdf
 
 # BIG files
 *.gdb
+/model output/
 
 # MS Office
 *.doc
 *.docx
 *.xls
 *.xlsx
+*.pptx
 
 # Google Earth
 *.kml
 *.kmz
 
-# Misc.
-vps.png
-vps_kde.png
-sturgeon_detections.csv
-habitat_positions.png
+# Videos and figs
+/figures/no_git/
+
+# Private data
+/data/raw/embargo/
+/data/derived/embargo/

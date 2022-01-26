@@ -12,30 +12,45 @@ dets <- fread('data/derived/sturgeon_detections.gz')
 dets <- dets[, year := year(date.local)]
 
 
-## TRIAL RUN: SELECT ONLY 2017 ##
-dets <- dets[year == 2017]
+## TRIAL RUN: SELECT ONLY 2017 and transmitter #23901
+dets <- dets[year == 2017 & grepl('23901', transmitter)]
 ##
 
 
 
 # Identify when fish move to a different station ----
 ##  Order each transmitter from earliest to latest detection
-setorder(dets, transmitter, date.local)
+setorder(dets, transmitter, date.utc)
 
 ##  Make a dummy column of the stations shifted up one ("shift()")
 ##  "by = transmitter" makes sure each transmitter "shifts" separately
 ##  Will need to add year to "by = " when running multiple years
-dets <- dets[, next_station := shift(station, fill = '-999'), by = transmitter]
+dets <- dets[, c('next_station', 'next_time') := shift(.SD,
+                                                       type = 'lead', fill = '-999'),
+             .SDcols= c('station', 'date.utc'), by = 'transmitter']
 
-##  Select detections where the next station is not the same as the current station
-dets <- dets[station != next_station]
+#$ Drop last row
+dets <- dets[-nrow(dets)]
 
-##  Drop "next_station" column
-dets <- dets[, next_station := NULL]
+dets[, grp := rleid(station, next_station)]
+dets[, dt := next_time - date.utc]
+
+d2 <- dets[, .(dt_1 = sum(dt), n = .N),
+           by = c('grp', 'station', 'next_station', 'transmitter')]
+
+# If the fish is resident at at site (n >1), there's higher uncertainty.
+d2[, ':='(lag = shift(dt_1, type = 'lag'),
+          lead = shift(dt_1, type = 'lead'))]
+d2[, dt_2 := fifelse(n > 1, sum(dt_1, lag, lead, na.rm = T), dt_1), by = grp]
+d2[, uncertainty := dt_2 - dt_1]
+
+
+# Restart here
 
 
 
 # Find distances between sites ----
 dist_df <- fread('data/derived/receiver_distances.csv')
 
-test <- dets[dist_df, on = c(station = 'from')]
+# For now, these are only marshyhope stations. need to find nanticoke distances later
+test <- dist_df[dets, on = c(from = 'station', to = 'next_station'), nomatch = 0]

@@ -3,40 +3,7 @@ library(data.table); library(sf); library(yaps)
 vue <- data.table::fread('data/raw/vueexport_2020_timecorrected.csv',
                          fill=TRUE, tz = '')
 
-prepDetections_custom <- function(raw_dat, type){
 
-  detections <- data.table::copy(raw_dat)
-
-  if (type == "vemco_vue"){
-
-    # Only parse datetime if needed
-    if(!inherits(detections$`Date and Time (UTC)`, 'POSIXt')){
-      detections[, ts := as.POSIXct(`Date and Time (UTC)`,
-                                    format = '%Y-%m-%d %H:%M:%OS',
-                                    tz = 'UTC')]
-    } else{
-      detections[, ts := `Date and Time (UTC)`]
-    }
-
-
-    detections[, ':='(tag = as.numeric(gsub('.*-', '', Transmitter)),
-                      serial = as.numeric(gsub('.*-', '', Receiver)),
-                      epo = as.numeric(ts))]
-    detections[, frac := round(epo - floor(epo), 3)]
-    detections[, epo := floor(epo)]
-    detections[, ts := as.POSIXct(epo,
-                                  origin = '1970-01-01',
-                                  tz = 'UTC')]
-
-  }
-
-  detections[, .(ts, tag, epo, frac, serial)]
-
-}
-
-
-
-detections <- prepDetections_custom(vue, 'vemco_vue')
 
 # Remove detections after VR2ARs started to be pulled
 # detections <- detections[ts <= as.POSIXct('2020-11-03 00:00:00', tz = 'UTC')]
@@ -138,7 +105,7 @@ getSyncCoverage(k, plot=TRUE)
 
 sync_model2 <- getSyncModel(k, silent=F, tmb_smartsearch = T, max_iter = 500)
 
-»plotSyncModelHydros(sync_model2)
+plotSyncModelHydros(sync_model2)
 
 plotSyncModelResids(sync_model2, by = "overall")
 plotSyncModelResids(sync_model, by = "quantiles")
