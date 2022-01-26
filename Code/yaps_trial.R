@@ -3,23 +3,40 @@ library(data.table); library(sf); library(yaps)
 vue <- data.table::fread('data/raw/vueexport_2020_timecorrected.csv',
                          fill=TRUE, tz = '')
 
-prepDetections_gsub <- function(raw_dat, type){
-  detections <- data.table::data.table()
+prepDetections_custom <- function(raw_dat, type){
+
+  detections <- data.table::copy(raw_dat)
+
   if (type == "vemco_vue"){
-    detections[, ts:=as.POSIXct(raw_dat$'Date and Time (UTC)', tz="UTC")]
-    detections[, tag:=as.numeric(gsub('.*-', '', raw_dat$Transmitter))]
-    detections[, epo:=as.numeric(ts)]
-    detections[, frac:= as.numeric(gsub('.*\\.', '', raw_dat$"Date and Time (UTC)"))/1000]
-    detections[, serial:=as.numeric(gsub('.*-', '', raw_dat$Receiver))]
+
+    # Only parse datetime if needed
+    if(!inherits(detections$`Date and Time (UTC)`, 'POSIXt')){
+      detections[, ts := as.POSIXct(`Date and Time (UTC)`,
+                                    format = '%Y-%m-%d %H:%M:%OS',
+                                    tz = 'UTC')]
+    } else{
+      detections[, ts := `Date and Time (UTC)`]
+    }
+
+
+    detections[, ':='(tag = as.numeric(gsub('.*-', '', Transmitter)),
+                      serial = as.numeric(gsub('.*-', '', Receiver)),
+                      epo = as.numeric(ts))]
+    detections[, frac := round(epo - floor(epo), 3)]
+    detections[, epo := floor(epo)]
+    detections[, ts := as.POSIXct(epo,
+                                  origin = '1970-01-01',
+                                  tz = 'UTC')]
+
   }
-  detections[]
-  return(detections)
+
+  detections[, .(ts, tag, epo, frac, serial)]
+
 }
 
 
 
-detections <- prepDetections_gsub(vue, 'vemco_vue')
-detections[is.na(frac), frac := 0]
+detections <- prepDetections_custom(vue, 'vemco_vue')
 
 # Remove detections after VR2ARs started to be pulled
 # detections <- detections[ts <= as.POSIXct('2020-11-03 00:00:00', tz = 'UTC')]
@@ -27,7 +44,7 @@ detections[is.na(frac), frac := 0]
                                  # as.POSIXct('2020-10-01 00:00:00', tz = 'UTC'))]
 
 library(readxl)
-excel_sheets('data/raw/vps-nanticokeriver-brookview-01.xls')
+# excel_sheets('data/raw/vps-nanticokeriver-brookview-01.xls')
 
 hydro_loc <- read_excel('data/raw/vps-nanticokeriver-brookview-01.xls',
                         'GPS Measurements',
@@ -95,20 +112,23 @@ wtemp[, ':='(ts = dateandtimeutc,
 ex <- list(hydros = copy(hydros)[, .(serial, x, y, z, sync_tag, idx)],
            detections = copy(detections)[
              tag %in% hydros$sync_tag &
-               ts <= as.POSIXct('2020-10-12 00:00:00', tz = 'UTC'),
+               # ts <= as.POSIXct('2020-10-12 00:00:00', tz = 'UTC'),
+               ts <= as.POSIXct('2020-09-04 00:00:00', tz = 'UTC'),
              .(ts, tag, epo, frac, serial)],
-           ss = copy(wtemp)[ts <= as.POSIXct('2020-10-12 00:00:00', tz = 'UTC'),
+           ss = copy(wtemp)[
+             # ts <= as.POSIXct('2020-10-12 00:00:00', tz = 'UTC'),
+             ts <= as.POSIXct('2020-09-04 00:00:00', tz = 'UTC'),
                             .(ts, ss)])
 
 
 k <- getInpSync(sync_dat = ex,
                 max_epo_diff = 230,
-                min_hydros = 5,
+                min_hydros = 2,
                 time_keeper_idx = 4, #546211 had the lowest drift (~1s)
-                fixed_hydros_idx = 3:12,
-                n_offset_day = 2,
+                fixed_hydros_idx = 2:12,
+                n_offset_day = 4,
                 n_ss_day = 2,
-                keep_rate = 165,
+                keep_rate = 160,
                 excl_self_detect = T,
                 ss_data_what = 'data',
                 ss_data = ex$ss
@@ -116,19 +136,19 @@ k <- getInpSync(sync_dat = ex,
 
 getSyncCoverage(k, plot=TRUE)
 
-sync_model <- getSyncModel(k, silent=F, tmb_smartsearch = T, max_iter = 500)
+sync_model2 <- getSyncModel(k, silent=F, tmb_smartsearch = T, max_iter = 500)
 
-plotSyncModelHydros(sync_model)
+»plotSyncModelHydros(sync_model2)
 
-plotSyncModelResids(sync_model, by = "overall")
+plotSyncModelResids(sync_model2, by = "overall")
 plotSyncModelResids(sync_model, by = "quantiles")
 plotSyncModelResids(sync_model, by = "sync_tag")
 plotSyncModelResids(sync_model, by = "hydro")
-plotSyncModelResids(sync_model, by = "temporal_hydro")
-plotSyncModelResids(sync_model, by = "temporal_sync_tag")
+plotSyncModelResids(sync_model2, by = "temporal_hydro")
+plotSyncModelResids(sync_model2, by = "temporal_sync_tag")
 
-j <- fineTuneSyncModel(sync_model, eps_threshold=1E4, silent=TRUE)
-j <- fineTuneSyncModel(j, eps_threshold=1E3, silent=TRUE)
+j <- fineTuneSyncModel(sync_model, eps_threshold=1E4, silent=F)
+j <- fineTuneSyncModel(j, eps_threshold=1E3, silent=F)
 
 plotSyncModelResids(j, by = "overall")
 plotSyncModelResids(j, by = "quantiles")
@@ -143,7 +163,7 @@ plotSyncModelCheck(j, by = "sync_bin_sync")
 plotSyncModelCheck(j, by = "sync_bin_hydro")
 
 
-jj <- fineTuneSyncModel(j, eps_threshold=1E2, silent=TRUE)
+jj <- fineTuneSyncModel(j, eps_threshold=1E2, silent=F)
 plotSyncModelResids(jj, by = "overall")
 plotSyncModelResids(jj, by = "quantiles")
 plotSyncModelResids(jj, by = "sync_tag")
