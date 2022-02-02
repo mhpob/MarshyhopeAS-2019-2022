@@ -97,7 +97,7 @@ crop_box <- fish %>%
   # Convert that bounding box to "simple features collection"
   st_as_sfc()
 
-mh_shape <- st_read('data/raw/NHD_H_0208_HU4_GDB.gdb',
+mh_shape <- st_read('data/raw/geo/NHD_H_0208_HU4_GDB.gdb',
                     layer = 'nhdarea',
 
                     # st_as_text converts the cropping box to "well-known text", which is
@@ -111,9 +111,10 @@ mh_shape <- mh_shape %>%
 
 
 ## Import habitat polygons
-habitat <- st_read('data/raw/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
+sf_use_s2(F)
+habitat <- st_read('data/raw/geo/2015 Atlantic Sturgeon Habitat Geodatabase Nanticoke and Tributaries 01132016.gdb',
                    layer = 'RiverBed_Habitat_Polygons_CMECS_SC_01132016',
-                   wkt_filter = st_as_text(crop_box %>% st_transform(26918))) %>%
+                   wkt_filter = st_as_text(crop_box %>% st_transform(26918)))%>%
   st_transform(st_crs(mh_shape)) %>%
   st_make_valid() %>%
   st_crop(crop_box) %>%
@@ -242,8 +243,8 @@ all <- ggplot(data = cbind(data.frame(estim$emmeans),
   labs(x = 'Bottom type', y = 'Positions per 100 m^2') +
   coord_cartesian(x = c(0.5, 6.5), y = c(0, 2), expand = F) +
   theme_minimal() +
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12))
+  theme(axis.text = element_text(size = 15),
+        axis.title = element_text(size = 15))
 
 per_fish <- ggplot(data = pip_scaled) +
   geom_col(aes(x = Group_, y = n / area * 100, fill = Group_),
@@ -252,9 +253,10 @@ per_fish <- ggplot(data = pip_scaled) +
   labs(x = 'Bottom type', y = 'Positions per m^2') +
   scale_fill_viridis_d(option = 'H') +
   theme_minimal() +
-  theme(axis.text.y = element_text(size = 12),
+  theme(axis.text.y = element_text(size = 15),
         axis.text.x = element_blank(),
         axis.title = element_blank(),
+        strip.text = element_text(size = 15),
         panel.grid.minor = element_blank())
 
 
