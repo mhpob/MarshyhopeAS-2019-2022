@@ -124,8 +124,8 @@ ggplot(data = habitat) +
 ```{r}
 grid_full <- habitat %>%
   # Our coordinate reference system has units of meters
-  #   Make a 20m x 20m grid
-  st_make_grid(c(20, 20)) %>% 
+  #   Make a 10m x 10m grid
+  st_make_grid(c(10, 10)) %>% 
   
   # Create IDs in the INLA order (top to bottom then left to right)
   st_as_sf() %>% 
@@ -218,7 +218,7 @@ Since we included grid cells that were partially on land, we want to scale the e
 ## Get data ready for INLA
 
 ```{r}
-mod_data <- n_pos_grid %>% 
+mod_data10 <- n_pos_grid %>% 
   mutate(
     # Numeric ID for spatial random effects
     id = as.numeric(id),
@@ -235,7 +235,7 @@ mod_data <- n_pos_grid %>%
 ## Run the model
 
 ```{r}
-res <- inla(n_pos ~ 1 + Group +
+res20_int <- inla(n_pos ~ Group +
               
               # Random transmitter effect
               f(transmitter, model = 'iid') +
@@ -255,7 +255,7 @@ res <- inla(n_pos ~ 1 + Group +
 ## Results
 
 ```{r}
-summary(res)
+summary(res20_int)
 ```
 
 ### Fixed effects
@@ -263,7 +263,7 @@ summary(res)
 First, we'll look at the posterior of the bottom type fixed effect.
 
 ```{r}
-list_marginals_fixed <- res$marginals.fixed
+list_marginals_fixed <- mm_5_3_g$marginals.fixed
 
 marginals <- data.frame(do.call(rbind, list_marginals_fixed))
 marginals$group <- rep(names(list_marginals_fixed),
@@ -273,7 +273,8 @@ marginals$group <- rep(names(list_marginals_fixed),
 ggplot(data = marginals,
        aes(x = x, y = y)) +
   geom_line() +
-  geom_vline(xintercept = 0) +
+  geom_vline(data = marginals %>% rename(grp = group) %>% group_by(grp) %>% slice(which.max(y)),
+             aes(xintercept = x, color = grp)) +
   labs(x = expression(beta[1]), y = "Density") +
   facet_wrap(~ group, scales = 'free') +
   theme_minimal()
@@ -282,7 +283,7 @@ ggplot(data = marginals,
 The "Intercept" in the plot of the marginals is mud: the coefficient for mud is significantly less than zero. With the exception of sandy mud, all of the other bottom types are no different than zero (i.e.: they aren't significant). Sandy mud is significantly greater than zero.
 
 ```{r}
-summary_fixed <- res$summary.fixed %>% 
+summary_fixed <- mm_5_3_g$summary.fixed %>% 
   mutate(group = gsub('Group', '', row.names(.)),
          group = ifelse(group == '(Intercept)', 'Mud', group),
          group = factor(group, levels = c('Sandy_Gravel', 'Sand', 'Muddy_Sand',
@@ -305,7 +306,7 @@ ggplot(data = filter(summary_fixed, group != 'Mud')) +
 
 If we look at the median and confidence interval of the coefficients on the same scale we can see that the effect of mud is very poorly resolved. In fact, we need to remove it to see what's going on with the other bottom types. As we saw before, none of the other bottom types are significantly different than zero with the exception of sandy mud.
 
-What does this look like on the response scale (number of positions per 20 m x 20 m grid)?
+What does this look like on the response scale (number of positions per 10 m x 10 m grid)?
 
 ```{r}
 summary_fixed <- summary_fixed %>% 
@@ -327,7 +328,7 @@ Here, we can see again that mud is predicted to have basically no positions and 
 First is the random effect of transmitter (individual fish). There do seem to be some differences here, though no individual fish is significantly different from the others. Note that since this is included as a random effect, everything is pulled toward the mean -- this is likely to underestimate large differences. I thought it might be interesting to see if any of these are sex-based differences, but all of these fish are male.
 
 ```{r}
-summary_iid <- res$summary.random$transmitter %>% 
+summary_iid <- mm_5_3_g$summary.random$transmitter %>% 
   mutate(resp_0.025quant = exp(`0.025quant`),
          resp_0.5quant = exp(`0.5quant`),
          resp_0.975quant = exp(`0.975quant`))
@@ -348,12 +349,12 @@ ggplot(data = summary_iid) +
 Next is the interesting part: spatial autocorrelation! It looks like there are some hot spots not explained by sediment type or transmitter just north of the Brookview Bridge and near the southern end of the array. Note the scale of the effect -- up to over 600 more positions in each grid cell! That far outweighs the 1-2 due to bottom type and is greater than the 2-150 due to differences between fish.
 
 ```{r}
-mod_data <- mod_data %>% 
-  mutate(re_spat = res$summary.random$id[mod_data$id, "0.5quant"],
+mod_data10 <- mod_data10 %>%
+  mutate(re_spat = mm_5_3_g$summary.random$id[mod_data10$id, "0.5quant"],
          resp_re_spat = exp(re_spat))
 
 ggplot() +
-  geom_sf(data = distinct(mod_data, id, .keep_all = T),
+  geom_sf(data = distinct(mod_data10, id, .keep_all = T),
           aes(fill = re_spat), color = NA) +
   geom_sf(data = mh_shape, fill = NA, size = 1, color = 'black') +
   labs(fill = 'Effect\n(link)') +
@@ -361,12 +362,16 @@ ggplot() +
   theme_minimal()
 
 ggplot() +
-  geom_sf(data = distinct(mod_data, id, .keep_all = T),
+  geom_sf(data = distinct(mod_data10, id, .keep_all = T),
           aes(fill = resp_re_spat), color = NA) +
   geom_sf(data = mh_shape, fill = NA, size = 1, color = 'black') +
-  labs(fill = 'Effect\n(response)') +
+  labs(fill = 'N Positions') +
   scale_fill_viridis_c() +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = c(0.8, 0.7),
+        legend.background = element_rect(fill = 'white'),
+        axis.text = element_text(size = 15),
+        axis.text.y = element_text(angle = 45))
 ```
 
 This really looks like what I imagine the depth to look like in the area, especially when viewed on the log-link scale. A few things are neat to me with this:
@@ -380,12 +385,12 @@ This really looks like what I imagine the depth to look like in the area, especi
 Lastly, we'll run some predictions.
 
 ```{r}
-mod_data$pred <- res$summary.fitted.values[, "0.5quant"]
-mod_data$lci <- res$summary.fitted.values[, "0.025quant"]
-mod_data$uci <- res$summary.fitted.values[, "0.975quant"]
+mod_data10$pred <- mm_5_3_g$summary.fitted.values[, "0.5quant"]
+mod_data10$lci <- mm_5_3_g$summary.fitted.values[, "0.025quant"]
+mod_data10$uci <- mm_5_3_g$summary.fitted.values[, "0.975quant"]
 
 
-preds <- mod_data %>% 
+preds <- mod_data10 %>% 
   # Scale predictions by cell size
   mutate(pred = pred * area,
          lci = lci * area,
@@ -399,14 +404,17 @@ preds <- mod_data %>%
 
 pred_plot <- ggplot(data = preds) +
   geom_sf(aes(fill = s_pred), color = NA, show.legend = F) +
-  scale_fill_viridis_c(limits = c(0, 150)) +
+  geom_sf(data = habitat[habitat$Group %in% c('Sandy_Gravel', 'Sand'),], fill = NA, color = 'lightgray') +
+  scale_fill_viridis_c(limits = c(0, 45)) +
   theme_minimal()+
-  theme(plot.margin = margin(0, 0, 0, 0))
+  theme(plot.margin = margin(0, 0, 0, 0),
+        axis.text.y = element_text(angle = 45),
+        axis.text = element_text(size = 12))
   
 lci_plot <- ggplot(data = preds) +
   geom_sf(aes(fill = s_lci), color = NA) +
   labs(fill = 'Prediction', subtitle = 'LCI') +
-  scale_fill_viridis_c(limits = c(0, 150)) +
+  scale_fill_viridis_c(limits = c(0, 45)) +
   theme_minimal() +
   theme(axis.text = element_blank(),
         plot.margin = margin(0, 0, 0, 0))
@@ -414,7 +422,7 @@ lci_plot <- ggplot(data = preds) +
 uci_plot <- ggplot(data = preds) +
   geom_sf(aes(fill = s_uci), color = NA) +
   labs(fill = 'Prediction', subtitle = 'UCI') +
-  scale_fill_viridis_c(limits = c(0, 150)) +
+  scale_fill_viridis_c(limits = c(0, 45)) +
   theme_minimal() +
   theme(axis.text = element_blank(),
         plot.margin = margin(0, 0, 0, 0))
