@@ -1,0 +1,183 @@
+---
+title: "2021 VPS-ARIS matching"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(ggplot2); library(plotly); library(data.table); library(sf)
+```
+
+## VPS data
+
+Innovasea uses an [Azimuthal Equidistant (AEQD)](https://proj.org/operations/projections/aeqd.html) projection, so going to use that directly rather than switching back to lat/long (WGS84). Filtering to keep only the 90% of detctions with the lowest horizontal positioning error (HPE).
+
+```{r}
+vps <- fread('data/raw/embargo/2021 vps/results/animal/all.csv', col.names = tolower)
+
+vps <- st_as_sf(vps,
+                coords = c('x', 'y', 'z'),
+                crs = '+proj=aeqd +lat_0=38.542096 +lon_0=-75.761724 +x_0=1800 +y_0=1800',
+                remove = F)
+vps <- setDT(vps)[hpe < quantile(hpe, 0.9)]
+
+head(vps)
+```
+
+Bring in the lengths at tagging. Most detections are the reference tag, 65011, so the number of *actual* animal positions we have it much lower than it seems.
+
+```{r}
+tag_data <- fread('data/raw/embargo/sturgeon capture data.csv', col.names = tolower)
+
+vps <- vps[tag_data, on = 'fullid == transmitternumber', nomatch = 0]
+head(vps)
+```
+
+
+
+
+## Import some land.
+
+```{r}
+nan <- st_read('data/raw/geo/NHD_H_0208_HU4_GDB.gdb',
+               query = "SELECT OGR_GEOM_WKT AS wkt
+                        FROM wbdhu10
+                        WHERE States LIKE 'D%'")
+
+nan <- st_read('data/raw/geo/NHD_H_0208_HU4_GDB.gdb',
+               layer = 'nhdarea',
+               wkt_filter = nan$wkt)
+
+nan <- st_transform(nan, '+proj=aeqd +lat_0=38.542096 +lon_0=-75.761724 +x_0=1800 +y_0=1800')
+
+
+seg <- st_crop(nan,
+               xmin = 1300, ymin = 1000,
+               xmax = 2350, ymax = 2450)
+
+
+ggplot() +
+  geom_sf(data = seg) +
+  geom_sf(data = vps, aes(geometry = geometry), alpha = 0.3)
+```
+
+## Bring in ARIS deployment time period
+
+```{r}
+## F-ARIS deployment period, by hour
+aris <- data.table(
+  start = seq.POSIXt(
+    as.POSIXct('2021-08-19 14:00', tz = 'America/New_York'),
+    as.POSIXct('2021-10-18 11:00', tz = 'America/New_York'),
+    by = 'hour'
+  )
+)
+
+## Make a dummy "end" column
+aris[, end := start]
+
+
+## Periods where the camera failed
+camera_failure <- data.table(
+  start = as.POSIXct(c('2021-08-22 12:00', '2021-08-26 10:00', '2021-09-07 18:00',
+                       '2021-10-07 04:00', '2021-10-11 11:00'), tz = 'America/New_York'),
+  end = as.POSIXct(c('2021-08-23 16:00', '2021-09-07 14:00', '2021-09-16 13:00',
+                     '2021-10-07 12:00', '2021-10-14 12:00'), tz = 'America/New_York')
+)
+
+## Find which hours of deployment had camera failure
+setkey(camera_failure, start, end)
+aris <- foverlaps(aris, camera_failure)
+
+## Camera was on if the hour was not during a period of camera failure (i.e., ==NA)
+aris[, camera_status := fifelse(is.na(start), 'Camera on', 'Camera off')]
+
+## Remove unneeded columns and rename column that lists the hours
+aris[, ':='(start = NULL, end = NULL, i.start = NULL, i.end = NULL,
+           'hrs' = i.end)]
+```
+
+
+### Filter according to ARIS location, within 100m or so.
+
+```{r}
+aris_loc <- st_sfc(st_point(c(-75.76290, 38.54498)), crs = 4326)
+aris_loc <- st_transform(aris_loc, '+proj=aeqd +lat_0=38.542096 +lon_0=-75.761724 +x_0=1800 +y_0=1800')
+
+vps_aris <- vps[, dist := as.numeric(st_distance(geometry, aris_loc))]
+
+ggplot() +
+  geom_histogram(data = vps_aris, aes(x = dist), binwidth = 10)
+
+vps_aris <- vps_aris[dist <= 100]
+
+ggplot() +
+  geom_histogram(data = vps_aris, aes(x = dist), binwidth = 5)
+
+vps_aris[, .N, by = 'fullid']
+
+ggplot() +
+  geom_sf(data = seg) +
+  geom_sf(data = vps_aris, aes(color = fullid, geometry = geometry), alpha = 0.3,
+          show.legend = F) +
+  geom_sf(data = aris_loc, shape = 10, size = 5, color = 'red') +
+  scale_color_viridis_d()
+```
+
+### Only take detections when camera was on.
+
+```{r}
+setattr(aris$hrs, 'tzone', 'UTC')
+aris[, end := shift(hrs, -1)]
+aris <- aris[!is.na(end)]
+setkey(aris, hrs, end)
+
+vps_aris[, dummy.end := time]
+vps_aris[, time.local := time]
+setattr(vps_aris$time.local, 'tzone', 'America/New_York')
+
+
+vps_aris <- foverlaps(vps_aris, aris, by.x = c('time', 'dummy.end'))[camera_status == 'Camera on']
+
+vps_aris[, .N, by = 'fullid']
+
+ggplot() +
+  geom_sf(data = seg) +
+  geom_sf(data = vps_aris, aes(geometry = geometry, color = fullid),
+          show.legend = F) +
+  geom_sf(data = aris_loc, shape = 10, size = 5) +
+  scale_color_viridis_d()
+
+
+ggplot() +
+  geom_sf(data = seg) +
+  geom_sf(data = vps_aris, aes(geometry = geometry, color = fullid),
+          show.legend = F) +
+  geom_sf(data = aris_loc, shape = 10, size = 5, color = 'red') +
+  coord_sf(xlim = c(1590, 1750), ylim = c(2000, 2200)) +
+  scale_color_viridis_d()
+```
+
+
+
+
+```{r}
+vps_aris[, .(fullid, totallength, time, time.local, datecaptured, dist)]
+
+ggplotly(
+  ggplot() +
+  geom_sf(data = seg) +
+  geom_sf(data = vps_aris, aes(geometry = geometry, color = fullid,
+                               label = totallength,
+                               label2 = time,
+                               label3 = dist),
+          size = 1,
+          show.legend = F) +
+  geom_sf(data = aris_loc, shape = 10, size = 5, color = 'red') +
+  coord_sf(xlim = c(1590, 1750), ylim = c(2000, 2200)) +
+  scale_color_viridis_d()
+)
+
+```
+
