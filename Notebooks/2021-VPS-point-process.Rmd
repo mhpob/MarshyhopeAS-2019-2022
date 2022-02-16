@@ -1,0 +1,31 @@
+---
+title: "2021 VPS Point Process"
+output: html_notebook
+---
+
+```{r}
+library(sf); library(data.table); library(INLA)
+```
+
+## Positions
+
+```{r}
+vps <- fread('data/raw/embargo/2021 vps/results/animal/all.csv', col.names = tolower)
+
+vps <- st_as_sf(vps,
+                coords = c('x', 'y', 'z'),
+                crs = '+proj=aeqd +lat_0=38.542096 +lon_0=-75.761724 +x_0=1800 +y_0=1800',
+                remove = F)
+vps <- setDT(vps)[hpe < quantile(hpe, 0.9)]
+
+tag_data <- fread('data/raw/embargo/sturgeon capture data.csv', col.names = tolower)
+
+vps <- vps[tag_data, on = 'fullid == transmitternumber', nomatch = 0]
+```
+
+## Habitat
+
+```{r}
+
+```
+
