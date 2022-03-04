@@ -89,7 +89,13 @@ ggplot() +
 # Plot each track individually
 ggplot() +
   geom_sf(data = seg) +
-  geom_path(data = vps, aes(x = x, y = y, color = time)) +
+  # arrows apparently don't play well with colored segments at the moment, so
+  # need to split
+  geom_path(data = vps, aes(x = x, y = y,
+                            group = interaction(track_id, id)),
+            arrow = arrow(angle = 15)) +
+  geom_path(data = vps, aes(x = x, y = y, color = time,
+                            group = interaction(track_id, id))) +
   geom_sf(data = aris_loc) +
   geom_sf(data = st_buffer(aris_loc, 100), fill = NA) +
   scale_color_viridis_c(trans = 'time', option = 'cividis') +
